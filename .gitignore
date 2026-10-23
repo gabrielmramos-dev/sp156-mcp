@@ -493,3 +493,4 @@ data/
 # a fixture fictícia pode ir para o git
 !tests/Sp156.Ingest.Tests/Fixtures/
 !tests/Sp156.Ingest.Tests/Fixtures/*.xlsx
+docs/LEARNING-LOG.md

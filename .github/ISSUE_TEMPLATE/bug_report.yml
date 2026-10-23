@@ -1,0 +1,28 @@
+name: Bug
+description: Algo se comporta diferente do esperado
+labels: ["bug"]
+body:
+  - type: textarea
+    id: esperado
+    attributes:
+      label: O que você esperava
+    validations:
+      required: true
+  - type: textarea
+    id: ocorrido
+    attributes:
+      label: O que aconteceu
+    validations:
+      required: true
+  - type: textarea
+    id: reproducao
+    attributes:
+      label: Como reproduzir
+      description: Passos mínimos. Não anexe dados reais do SP156.
+    validations:
+      required: true
+  - type: input
+    id: ambiente
+    attributes:
+      label: Ambiente
+      description: Saída de `dotnet --version` e sistema operacional

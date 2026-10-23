@@ -1,0 +1,24 @@
+name: Proposta
+description: Sugerir uma funcionalidade ou pergunta que o MCP deveria responder
+labels: ["proposta"]
+body:
+  - type: textarea
+    id: pergunta
+    attributes:
+      label: Que pergunta (ou funcionalidade) você quer?
+      description: Se for uma pergunta sobre os dados, diga quais colunas ela usa.
+    validations:
+      required: true
+  - type: textarea
+    id: motivo
+    attributes:
+      label: Por que isso importa
+    validations:
+      required: true
+  - type: checkboxes
+    id: privacidade
+    attributes:
+      label: Privacidade
+      options:
+        - label: Entendo que o projeto não expõe endereço nem coordenadas (ADR 0002)
+          required: true
