@@ -21,6 +21,16 @@ Servidor MCP, ferramentas, aba `Satisfação`, GeoSampa, Docker. Não tocar niss
 - Tipo `Pedido` em `src/Sp156.Ingest/Pedido.cs`, 10 campos. Não alterar sem avisar.
 - `LeitorSolicitacoes.Ler(Stream xlsx) : IEnumerable<Pedido>`: uma linha por vez, sem carregar tudo em memória.
 
+## Cabeçalhos
+As colunas são mapeadas pelo **nome do cabeçalho**, não pela posição. A comparação é exata (diferencia maiúsculas de minúsculas e acentos), mas ambos os lados são normalizados para Unicode NFC antes, então um cabeçalho decomposto (NFD) equivale ao composto. O nome da aba (`Solicitações`) segue a mesma regra. Colunas extras são ignoradas. As 5 colunas de endereço nunca entram no mapa.
+
+Erros, todos lançados **na chamada de `Ler`**, antes de devolver qualquer pedido:
+- Aba ausente: `InvalidDataException`.
+- Falta qualquer uma das 10 colunas obrigatórias: `ColunaObrigatoriaAusenteException`.
+- Coluna obrigatória duplicada (mesmo nome após NFC): `InvalidDataException`. Duplicata de coluna extra é ignorada.
+
+As mensagens de erro **nunca ecoam o conteúdo do arquivo**. A de coluna ausente traz só os nomes ausentes, a contagem de cabeçalhos encontrados e, por coluna ausente, cabeçalhos que diferem dela apenas por acento ou caixa.
+
 ## Critérios de aceitação (fixture `sp156_fixture.xlsx`)
 | Verificação | Esperado |
 |---|---|
