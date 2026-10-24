@@ -10,6 +10,7 @@ Os números abaixo foram **medidos por inspeção** do arquivo `arquivo-final-1-
 - Aba `Solicitações`, 15 colunas: Data de Abertura, Data de Finalização, Meio de Comunicação, Tema, Assunto, Serviço, Status, Órgão, Logradouro, Número, CEP, Latitude, Longitude, Prefeitura Operacional, Distrito.
 - Aba `Satisfação`: as mesmas 15 colunas mais 4 perguntas da pesquisa. Só 883 linhas, todas `Finalizada`: amostra pequena e autosselecionada.
 - **Sem ID de protocolo.**
+- Formato interno: strings compartilhadas e datas como número serial. A aba `Solicitações` tem cerca de 518 MB de XML descompactado e 13 MB de strings compartilhadas.
 
 ## Colunas que o projeto usa (10)
 
@@ -23,6 +24,8 @@ Data de Abertura, Data de Finalização, Meio de Comunicação, Tema, Assunto, S
 |---|---|
 | A aba declara 1.048.576 linhas; só **742.904** têm dado | Contar linhas sem filtrar vazias dá o número errado |
 | **47,65%** das linhas reais são duplicatas exatas | A linha não é uma solicitação única; não deduplicar |
+| `Data de Finalização` ausente vem como string vazia `''`, não como célula vazia: 24.308 linhas (23.504 `Aberto`, 313 `Em Andamento`, **491 `Finalizada`**) | Tratar `''` como nulo; 491 pedidos finalizados não têm data |
+| `Meio de Comunicação` ausente em 1 linha real | O campo é anulável |
 | Status: `Finalizada` 715.139, `Aberto` 23.504, `Cancelada` 3.948, `Em Andamento` 313 | Valores diferem da documentação oficial |
 | Meio: CRM, PORTAL, MOBILE, INTEGRACAO, CHATBOT, RESOLUCAO | Diferem da documentação oficial |
 | Status é um retrato de ago/2026 (última finalização: 2026-08-05) | Pedidos de jan–mar/2025 ainda abertos quase 19 meses depois: tempo até finalizar tem **censura** |

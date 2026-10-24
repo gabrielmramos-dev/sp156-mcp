@@ -10,7 +10,7 @@ Permitir que um assistente de IA responda perguntas agregadas sobre pedidos feit
 
 ## Princípios
 
-- **Só agregados.** Endereço, número, CEP e coordenadas **não são lidos nem gravados**. Ver [ADR 0002](docs/decisions/0002-privacidade-sem-enderecos.md).
+- **Só agregados.** Endereço, número, CEP e coordenadas **não são mapeados para o modelo nem gravados**. Ver [ADR 0002](docs/decisions/0002-privacidade-sem-enderecos.md).
 - **A linha é a unidade, não a "solicitação".** Os dados não têm ID de protocolo e quase metade das linhas é idêntica a outra. Nada é deduplicado. Ver [ADR 0003](docs/decisions/0003-nao-deduplicar-linhas.md).
 - **Toda resposta carrega o contexto:** fonte, período, data da extração e avisos (por exemplo, quantas linhas não têm distrito, quantos pedidos seguem abertos).
 - **Evidência antes de afirmação.** Nada aqui é "provado": os testes verificam casos concretos, e o que eles não cobrem está descrito em [docs/DATA.md](docs/DATA.md).

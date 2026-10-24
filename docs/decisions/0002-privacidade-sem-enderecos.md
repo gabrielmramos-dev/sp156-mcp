@@ -22,7 +22,7 @@ O arquivo do SP156 traz logradouro, número, CEP e coordenadas exatas junto com 
 
 ## Resultado da decisão
 
-Escolhida a terceira. Logradouro, Número, CEP, Latitude e Longitude **não são lidos nem gravados**. O dado não chega ao banco, então nenhuma ferramenta futura consegue vazá-lo.
+Escolhida a terceira. Logradouro, Número, CEP, Latitude e Longitude **não são mapeados para o modelo nem gravados**. A biblioteca de leitura precisa parsear as células, mas o dado não chega ao modelo nem ao banco, então nenhuma ferramenta futura consegue vazá-lo.
 
 ### Consequências
 
@@ -31,7 +31,7 @@ Escolhida a terceira. Logradouro, Número, CEP, Latitude e Longitude **não são
 
 ### Confirmação
 
-Teste: a tabela SQLite não contém coluna de endereço nem coordenada.
+Testes: (1) a tabela SQLite não contém coluna de endereço nem coordenada; (2) os bytes do `.db` gerado a partir da fixture não contêm o texto de endereço nem as coordenadas dela.
 
 ## Mais informações
 

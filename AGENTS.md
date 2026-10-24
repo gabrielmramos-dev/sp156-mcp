@@ -18,7 +18,7 @@ SP156_XLSX=/caminho/arquivo.xlsx dotnet test   # opcional, contra o arquivo real
 
 ## Regras inegociáveis
 
-- **Privacidade:** nunca ler nem gravar Logradouro, Número, CEP, Latitude, Longitude (ADR 0002).
+- **Privacidade:** nunca mapear para o modelo nem gravar Logradouro, Número, CEP, Latitude, Longitude (ADR 0002).
 - **Não deduplicar linhas** (ADR 0003).
 - **Nunca** commitar dados reais, bancos (`*.db`, `*.sqlite`) ou planilhas fora de `tests/**/Fixtures/`.
 - **Nunca alterar um teste ou a fixture para fazê-lo passar.** Se a spec ou o teste parecer errado, pare e avise.
