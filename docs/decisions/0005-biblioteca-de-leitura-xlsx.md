@@ -36,10 +36,12 @@ Spike descartável em [tools/spike-xlsx/](../../tools/spike-xlsx/): lê as 10 co
 
 | Biblioteca | Pico de working set | Tempo |
 |---|---|---|
-| Sylvan.Data.Excel 0.5.8 | 46, 47 e 53 MiB (3 execuções) | 7,3, 9,8 e 7,7 s |
+| Sylvan.Data.Excel 0.5.8 | 46, 47, 53 e 61 MiB (4 execuções) | 7,3, 9,8, 7,7 e 6,5 s |
 | ExcelDataReader 3.9.0 | 62, 67, 68 e 87 MiB (4 execuções) | 20,2, 20,6, 30,8 e 32,2 s |
 
-Em ambas, a contagem bateu com o [DATA.md](../DATA.md): 742.904 linhas; Finalizada 715.139, Aberto 23.504, Cancelada 3.948, Em Andamento 313. O Sylvan foi **cerca de 3 vezes mais rápido** e usou menos memória no pico. O ExcelDataReader variou bastante entre execuções (62 a 87 MiB). Com quatro ou menos execuções por biblioteca, os números dão ordem de grandeza e não estatística.
+Em ambas, a contagem bateu com o [DATA.md](../DATA.md): 742.904 linhas; Finalizada 715.139, Aberto 23.504, Cancelada 3.948, Em Andamento 313. O Sylvan foi **cerca de 3 vezes mais rápido**. Na memória, as faixas de pico (46 a 61 MiB contra 62 a 87 MiB) quase se tocam, então a diferença é pequena e não deve pesar na decisão. Com quatro ou menos execuções por biblioteca, os números dão ordem de grandeza e não estatística.
+
+A 4ª execução do Sylvan (61 MiB, 6,5 s) rodou com o código do spike já editado: removi uma linha de log que imprimia os cabeçalhos. A edição não mexe na leitura, mas as três primeiras execuções usaram a versão anterior.
 
 ### O que o spike NÃO mediu
 
@@ -59,7 +61,7 @@ O pico de memória do pipeline completo pode ser maior que o medido aqui e preci
 
 ### Consequências
 
-* Bom: menor pico de memória e leitura mais rápida no arquivo real.
+* Bom: leitura cerca de 3 vezes mais rápida no arquivo real, com memória no mesmo patamar.
 * Ruim: dependência de um projeto com um mantenedor e versão 0.x. Se isso virar problema, o plano B é o ExcelDataReader.
 * Ruim: a biblioteca parseia as células de endereço mesmo sem o código as usar. A ADR 0002 trata disso: o dado não é mapeado para o modelo nem gravado.
 
