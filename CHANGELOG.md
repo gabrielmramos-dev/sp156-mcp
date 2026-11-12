@@ -20,3 +20,5 @@ O projeto ainda não tem versões publicadas.
 - Migração de .NET 8 para .NET 10 (`net10.0`, SDK 10.0.115 em `global.json`, mesma política `rollForward: latestFeature`), pois o .NET 8 saiu de suporte em 10/11/2026. Decisão no ADR 0006.
 - Dependência `Microsoft.Data.Sqlite` 10.0.15 (MIT; traz o SQLite 3.53.3 nativo via `SQLitePCLRaw` 2.1.13, Apache-2.0). Decisão no ADR 0007.
 - `GravadorSqlite`: grava os `Pedido` em uma tabela `pedidos` (10 colunas, sem endereço, 4 `CHECK` nomeados, sem deduplicar). Escreve em `<caminho>.tmp` e renomeia no fim, sem tocar num destino existente e sem deixar `.tmp` ou `-journal` na falha. Teste com o arquivo real confere os totais da spec no banco.
+- `Sp156.Cli`: comando `ingerir <arquivo.xlsx> <saida.db>` (`dotnet run --project src/Sp156.Cli -- ...`), com parsing manual e sem pacote novo. Códigos de saída: 0 sucesso, 1 erro esperado, 2 uso incorreto; as mensagens não trazem conteúdo de célula.
+- `.gitignore` cobre `*.sqlite3` e os arquivos `-journal`, `-wal` e `-shm` do SQLite.

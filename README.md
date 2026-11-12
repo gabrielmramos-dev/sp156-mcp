@@ -25,9 +25,25 @@ Detalhes, limitações e divergências entre a documentação oficial e os arqui
 
 ```
 src/Sp156.Ingest/            leitura do XLSX e gravação em SQLite
+src/Sp156.Cli/               linha de comando (comando `ingerir`)
 tests/Sp156.Ingest.Tests/    testes e fixture fictícia
 docs/                        spec, dados, decisões (ADRs), diário de aprendizagem
 ```
+
+## Ingerir um arquivo
+
+Requer o SDK do .NET 10 (versão em `global.json`). Lê a aba `Solicitações` de um XLSX do SP156 e grava os pedidos em um banco SQLite:
+
+```bash
+dotnet run --project src/Sp156.Cli -- ingerir <arquivo.xlsx> <saida.db>
+```
+
+- O arquivo de saída **não pode existir**: o comando nunca sobrescreve nada. A gravação vai para `<saida.db>.tmp` e é renomeada só no fim, então uma falha não deixa um banco pela metade.
+- Em caso de sucesso imprime `<N> pedidos gravados em <saida.db>` e termina com código `0`.
+- Erro esperado (arquivo inexistente, destino já existente, coluna ou aba ausente, linha inválida, `.tmp` de uma gravação anterior): mensagem na saída de erro e código `1`.
+- Argumentos errados: texto de uso na saída de erro e código `2`.
+- As mensagens trazem só caminhos, nomes de coluna e número de linha, nunca o conteúdo das células. O banco não tem coluna de endereço nem de coordenadas ([ADR 0002](docs/decisions/0002-privacidade-sem-enderecos.md)). O esquema está na [spec](docs/spec-m1-ingestao.md).
+- Bancos (`*.db`) e planilhas reais não vão para o git (`.gitignore`).
 
 ## Desenvolvimento
 
