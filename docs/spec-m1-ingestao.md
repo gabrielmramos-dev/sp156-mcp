@@ -20,6 +20,8 @@ Servidor MCP, ferramentas, aba `Satisfação`, GeoSampa, Docker. Não tocar niss
 ## Contrato
 - Tipo `Pedido` em `src/Sp156.Ingest/Pedido.cs`, 10 campos. Não alterar sem avisar.
 - `LeitorSolicitacoes.Ler(Stream xlsx) : IEnumerable<Pedido>`: uma linha por vez, sem carregar tudo em memória.
+  - Até a tarefa 4, `Ler` valida aba e cabeçalho mas **não devolve `Pedido`** (conversão de datas, `''` → nulo e normalização ainda não existem). A camada interna `LerLinhasBrutas` já percorre a aba e devolve `LinhaBruta` (só as 10 colunas mapeadas, valores sem converter), ignorando linhas em branco.
+  - Linha em branco = as 10 colunas obrigatórias nulas, vazias ou só com espaços. Linha curta (menos células que o cabeçalho) completa as ausentes com nulo.
 
 ## Cabeçalhos
 As colunas são mapeadas pelo **nome do cabeçalho**, não pela posição. A comparação é exata (diferencia maiúsculas de minúsculas e acentos), mas ambos os lados são normalizados para Unicode NFC antes, então um cabeçalho decomposto (NFD) equivale ao composto. O nome da aba (`Solicitações`) segue a mesma regra. Colunas extras são ignoradas. As 5 colunas de endereço nunca entram no mapa.
