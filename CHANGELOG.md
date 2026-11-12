@@ -23,3 +23,4 @@ O projeto ainda não tem versões publicadas.
 - `Sp156.Cli`: comando `ingerir <arquivo.xlsx> <saida.db>` (`dotnet run --project src/Sp156.Cli -- ...`), com parsing manual e sem pacote novo. Códigos de saída: 0 sucesso, 1 erro esperado, 2 uso incorreto; as mensagens não trazem conteúdo de célula.
 - `.gitignore` cobre `*.sqlite3` e os arquivos `-journal`, `-wal` e `-shm` do SQLite.
 - CLI: checa o destino antes de abrir o XLSX e trata exceção inesperada (arquivo corrompido ou que não é XLSX) com o nome do tipo da exceção, sem a mensagem da biblioteca e sem stack trace. O `Sp156.Ingest` marca (internamente) as `InvalidDataException` que ele mesmo lança, para o CLI imprimir só essas.
+- Teste de privacidade com o arquivo real: uma amostra determinística de valores de Logradouro, Número, CEP, Latitude e Longitude (7+ caracteres) não pode aparecer nos bytes do `.db` gerado. É uma amostra de 1 trimestre, não uma prova exaustiva (ver ADR 0002).

@@ -88,3 +88,5 @@ CREATE TABLE pedidos (
 742.904 linhas; Finalizada 715.139; Aberto 23.504; Cancelada 3.948; Em Andamento 313.
 DataFinalizacao nula: 24.308 (23.504 Aberto + 313 Em Andamento + 491 Finalizada); MeioComunicacao nulo: 1.
 O teste é ignorado quando a variável não está definida.
+
+Privacidade por amostra (ADR 0002): lê do XLSX só as colunas de endereço e coordenadas, monta uma amostra determinística (um valor a cada 4.000, não vazio, com 7 ou mais caracteres, até 200 distintos por coluna) e afirma que nenhum valor aparece, como bytes UTF-8, no `.db` gerado. É uma **amostra** de 1 trimestre: não é uma verificação exaustiva e não diz nada sobre o que a biblioteca de leitura decodifica em memória. Detalhes e limites no [ADR 0002](decisions/0002-privacidade-sem-enderecos.md).
