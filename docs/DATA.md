@@ -36,7 +36,7 @@ Data de Abertura, Data de Finalização, Meio de Comunicação, Tema, Assunto, S
 | `Meio de Comunicação` ausente em 1 linha real | O campo é anulável |
 | Status: `Finalizada` 715.139, `Aberto` 23.504, `Cancelada` 3.948, `Em Andamento` 313 | Valores diferem da documentação oficial |
 | Meio: CRM, PORTAL, MOBILE, INTEGRACAO, CHATBOT, RESOLUCAO | Diferem da documentação oficial |
-| Status é um retrato de ago/2026 (última finalização: 2026-08-05) | Pedidos de jan–mar/2025 ainda abertos quase 19 meses depois: tempo até finalizar tem **censura** |
+| Status é um retrato de data desconhecida, não anterior a 2026-08-05 (data da última finalização no arquivo); a data de extração não foi medida | Pedidos de jan–mar/2025 ainda abertos pelo menos 16 meses depois: tempo até finalizar tem **censura** |
 | Distrito e Prefeitura Operacional vazios em ~50% das linhas reais | Toda resposta por distrito deve informar quantas linhas ficaram sem distrito |
 | Geografia depende do tema (Rua e bairro, Lixo e limpeza, Urgência ~100%; Cultura/esporte, Finanças, Saúde 0–2%) | Perguntas geográficas só valem para parte dos temas |
 | Latitude/Longitude vêm como texto; há 2.517 linhas (0, 0) e ~2.570 fora de SP capital | (Irrelevante hoje: as colunas são descartadas) |
@@ -45,7 +45,7 @@ Data de Abertura, Data de Finalização, Meio de Comunicação, Tema, Assunto, S
 ## Limitações
 
 - **Os dados só registram solicitações feitas pela população.** Eles se referem exclusivamente às solicitações de serviços registradas pela população aos órgãos da Prefeitura. A Prefeitura pode executar um serviço sem ter recebido a solicitação correspondente (por exemplo, remover entulho que ninguém solicitou), então o volume de pedidos **não mede** a quantidade de serviços executados nem os problemas existentes na cidade. Fonte: nota de esclarecimento 3 da página [Dados Abertos – SP156](https://transparencia.prefeitura.sp.gov.br/dados-abertos-sp156/), consultada em 2026-11-12.
-- Valem também as armadilhas acima: só 1 trimestre verificado, a linha não é uma solicitação única e o status é um retrato de ago/2026.
+- Valem também as armadilhas acima: só 1 trimestre verificado, a linha não é uma solicitação única e o status é um retrato de data desconhecida, não anterior a 2026-08-05 (data da última finalização no arquivo).
 
 ## Divergências entre a documentação oficial e o arquivo real
 

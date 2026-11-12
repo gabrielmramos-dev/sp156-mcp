@@ -7,6 +7,7 @@ A versão 0.1.0 existe como tag local; nada foi publicado.
 
 ### Alterado
 - Documentação (`docs/DATA.md`): registro do arquivo medido (nome, tamanho, SHA-256 e data de modificação local), correção sobre o período coberto (a página da Transparência está desatualizada em relação ao portal de dados abertos) e novos itens em "ainda não verificado" (CSV, retificação de 2025, só o 1º TRI 2025 medido).
+- Documentação: o status do arquivo medido passa a ser descrito como um retrato de data desconhecida, não anterior a 2026-08-05 (data da última finalização no arquivo), e não mais como um retrato de agosto/2026. A data de extração não foi medida. A frase sobre censura continua: pedidos ainda abertos não têm data de finalização, então qualquer média de tempo até finalizar é viesada.
 
 ## [0.1.0] - 2026-11-12
 
