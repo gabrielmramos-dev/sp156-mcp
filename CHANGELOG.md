@@ -16,6 +16,7 @@ Marco 1: ingestão do SP156 para SQLite. Ainda não há servidor MCP.
 - `GravadorSqlite`: tabela `pedidos` (10 colunas, sem endereço, 4 `CHECK` nomeados, sem deduplicar). Escreve em `<caminho>.tmp` e renomeia no fim, sem tocar num destino existente e sem deixar `.tmp` ou `-journal` na falha.
 - `Sp156.Cli`: comando `ingerir <arquivo.xlsx> <saida.db>`, com parsing manual e sem pacote novo. Códigos de saída: 0 sucesso, 1 erro, 2 uso incorreto. Checa o destino antes de abrir o XLSX e trata arquivo corrompido ou que não é XLSX sem imprimir a mensagem da biblioteca (o `Sp156.Ingest` marca internamente as `InvalidDataException` que ele mesmo lança).
 - Testes: fixture fictícia; teste de fumaça com o arquivo real (`SP156_XLSX`, `Skipped` sem a variável) que confere os totais da spec; privacidade nos bytes do `.db` da fixture; privacidade por **amostra** no arquivo real do 1º trimestre de 2025 (não é prova exaustiva; ver ADR 0002); testes unitários do buscador de bytes (fronteira entre blocos, acentos).
+- Link do conjunto de dados do SP156 no README e no `docs/DATA.md`, e a limitação de cobertura: os dados só registram solicitações feitas pela população, então o volume de pedidos não mede os serviços executados nem os problemas da cidade (fonte: página Dados Abertos – SP156 da Prefeitura).
 - Documentação: spec do Marco 1, notas sobre os dados (`docs/DATA.md`) e ADRs 0001 a 0007. `tools/spike-xlsx/` guarda a medição das bibliotecas de XLSX, fora da solução.
 
 ### Alterado

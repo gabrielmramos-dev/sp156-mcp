@@ -19,7 +19,7 @@ SDK do .NET na versão indicada em [`global.json`](global.json) (hoje 10.0.115, 
 
 ## Como obter o dado
 
-Os dados vêm do portal de dados abertos da Prefeitura de São Paulo (dados.prefeitura.sp.gov.br), no conjunto de dados do SP156. O arquivo usado para desenvolver e verificar este projeto é `arquivo-final-1-trim-25.xlsx` (1º trimestre de 2025). Estrutura, limitações e divergências em relação à documentação oficial: [docs/DATA.md](docs/DATA.md).
+Os dados vêm do portal de dados abertos da Prefeitura de São Paulo, no conjunto de dados do SP156: <https://dados.prefeitura.sp.gov.br/dataset/dados-do-sp156>. A página de [Dados Abertos – SP156](https://transparencia.prefeitura.sp.gov.br/dados-abertos-sp156/), do Portal da Transparência, descreve o conjunto e traz notas de esclarecimento. O arquivo usado para desenvolver e verificar este projeto é `arquivo-final-1-trim-25.xlsx` (1º trimestre de 2025). Estrutura, limitações e divergências em relação à documentação oficial: [docs/DATA.md](docs/DATA.md).
 
 Dados reais **nunca** entram no git (`.gitignore`). A única planilha versionada é a fixture fictícia em `tests/.../Fixtures/`.
 
@@ -57,6 +57,7 @@ dotnet run --project src/Sp156.Cli -- ingerir <arquivo.xlsx> <saida.db>
 ## Limitações dos dados
 
 - **Só 1 trimestre** (1º trimestre de 2025).
+- **Os dados só registram solicitações feitas pela população.** Eles se referem exclusivamente às solicitações de serviços registradas pela população aos órgãos da Prefeitura. A Prefeitura pode executar um serviço sem ter recebido a solicitação correspondente (por exemplo, remover entulho que ninguém solicitou), então o volume de pedidos **não mede** a quantidade de serviços executados nem os problemas existentes na cidade. Fonte: nota de esclarecimento 3 da página [Dados Abertos – SP156](https://transparencia.prefeitura.sp.gov.br/dados-abertos-sp156/), consultada em 2026-11-12.
 - **O status é um retrato de agosto/2026** (última finalização: 2026-08-05). Pedidos de janeiro a março de 2025 ainda abertos quase 19 meses depois indicam que o tempo até finalizar tem **censura**: os pedidos ainda abertos não têm data de finalização para medir, então qualquer média de tempo até finalizar é viesada.
 - **Sem deduplicação.** Os dados não têm ID de protocolo, a linha é a unidade e **47,65% das linhas são duplicatas exatas** de outra. A contagem é de linhas registradas, não de problemas ou pessoas distintas ([ADR 0003](docs/decisions/0003-nao-deduplicar-linhas.md)).
 - Distrito e Prefeitura Operacional estão vazios em cerca de metade das linhas.

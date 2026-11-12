@@ -1,6 +1,6 @@
 # Notas sobre os dados do SP156
 
-Fonte: portal de dados abertos da Prefeitura de São Paulo. Licença: **CC0 1.0 Universal** (dedicação ao domínio público). A CC0 não substitui a análise de dados pessoais: ver [ADR 0002](decisions/0002-privacidade-sem-enderecos.md).
+Fonte: portal de dados abertos da Prefeitura de São Paulo, conjunto de dados do SP156: <https://dados.prefeitura.sp.gov.br/dataset/dados-do-sp156> (descrito na página [Dados Abertos – SP156](https://transparencia.prefeitura.sp.gov.br/dados-abertos-sp156/) do Portal da Transparência). Licença: **CC0 1.0 Universal** (dedicação ao domínio público). A CC0 não substitui a análise de dados pessoais: ver [ADR 0002](decisions/0002-privacidade-sem-enderecos.md).
 
 Os números abaixo foram **medidos por inspeção** do arquivo `arquivo-final-1-trim-25.xlsx` (1º trimestre de 2025), em 2026-10-23. Valem para esse arquivo, não para a série inteira.
 
@@ -34,6 +34,11 @@ Data de Abertura, Data de Finalização, Meio de Comunicação, Tema, Assunto, S
 | Geografia depende do tema (Rua e bairro, Lixo e limpeza, Urgência ~100%; Cultura/esporte, Finanças, Saúde 0–2%) | Perguntas geográficas só valem para parte dos temas |
 | Latitude/Longitude vêm como texto; há 2.517 linhas (0, 0) e ~2.570 fora de SP capital | (Irrelevante hoje: as colunas são descartadas) |
 | Espaço duplo no meio do texto em 13 valores (2 em `Assunto`, 11 em `Serviço`); sem variação de acento nem de caixa em nenhuma coluna | O texto guardado recebe só NFC e trim; o espaço duplo é mantido. `TextoNormalizado.Chave` existe para busca. Normalização mais agressiva adiada por falta de evidência (1 trimestre medido) |
+
+## Limitações
+
+- **Os dados só registram solicitações feitas pela população.** Eles se referem exclusivamente às solicitações de serviços registradas pela população aos órgãos da Prefeitura. A Prefeitura pode executar um serviço sem ter recebido a solicitação correspondente (por exemplo, remover entulho que ninguém solicitou), então o volume de pedidos **não mede** a quantidade de serviços executados nem os problemas existentes na cidade. Fonte: nota de esclarecimento 3 da página [Dados Abertos – SP156](https://transparencia.prefeitura.sp.gov.br/dados-abertos-sp156/), consultada em 2026-11-12.
+- Valem também as armadilhas acima: só 1 trimestre verificado, a linha não é uma solicitação única e o status é um retrato de ago/2026.
 
 ## Divergências entre a documentação oficial e o arquivo real
 
