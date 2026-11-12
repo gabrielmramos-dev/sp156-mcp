@@ -1,6 +1,4 @@
-using System.Buffers;
 using System.Diagnostics;
-using System.Text;
 using Microsoft.Data.Sqlite;
 using Sp156.Cli;
 using Sylvan.Data.Excel;
@@ -17,7 +15,6 @@ public class PrivacidadeArquivoRealTests
     private const int PassoDaAmostra = 4000;   // um valor candidato a cada 4.000
     private const int MaximoPorColuna = 200;
     private const int TamanhoMinimo = 7;       // abaixo disso ("0", "1") casaria por acaso
-    private const int TamanhoDoBloco = 4 * 1024 * 1024;
 
     private static readonly string[] Colunas = { "Logradouro", "Número", "CEP", "Latitude", "Longitude" };
 
@@ -40,7 +37,9 @@ public class PrivacidadeArquivoRealTests
             relogioAmostra.Stop();
 
             var relogioVarredura = Stopwatch.StartNew();
-            var acertos = ProcurarNoDb(db, amostra);
+            HashSet<(string Coluna, string Valor)> acertos;
+            using (var arquivoDb = File.OpenRead(db))
+                acertos = BuscadorDeBytes.Procurar(arquivoDb, amostra.SelectMany(par => par.Value.Select(v => (par.Key, v))).ToList());
             relogioVarredura.Stop();
 
             // Medidas só informativas: não são afirmadas. Nenhum valor de célula é impresso.
@@ -92,47 +91,5 @@ public class PrivacidadeArquivoRealTests
         }
 
         return amostra;
-    }
-
-    // Procura cada valor, como bytes UTF-8, no arquivo inteiro, em blocos com sobreposição. Cada byte vira
-    // um char (Latin-1), o que mantém a busca byte a byte e deixa usar SearchValues para várias cadeias.
-    private static HashSet<(string Coluna, string Chave)> ProcurarNoDb(string db, Dictionary<string, List<string>> amostra)
-    {
-        var padroes = amostra
-            .SelectMany(par => par.Value.Select(valor => (Coluna: par.Key, Chave: Encoding.Latin1.GetString(Encoding.UTF8.GetBytes(valor)))))
-            .ToList();
-        var busca = SearchValues.Create(padroes.Select(p => p.Chave).Distinct().ToArray(), StringComparison.Ordinal);
-        var maior = padroes.Max(p => p.Chave.Length);
-
-        var acertos = new HashSet<(string, string)>();
-        var bytes = new byte[TamanhoDoBloco];
-        var chars = new char[TamanhoDoBloco + maior];
-        var sobra = 0;
-
-        using var arquivo = File.OpenRead(db);
-        int lidos;
-        while ((lidos = arquivo.Read(bytes, 0, bytes.Length)) > 0)
-        {
-            Encoding.Latin1.GetChars(bytes, 0, lidos, chars, sobra);
-            var total = sobra + lidos;
-            var trecho = chars.AsSpan(0, total);
-
-            var inicio = 0;
-            while (inicio < total)
-            {
-                var i = trecho[inicio..].IndexOfAny(busca);
-                if (i < 0) break;
-                var posicao = inicio + i;
-                foreach (var (coluna, chave) in padroes)
-                    if (trecho[posicao..].StartsWith(chave, StringComparison.Ordinal))
-                        acertos.Add((coluna, chave));
-                inicio = posicao + 1;
-            }
-
-            sobra = Math.Min(maior - 1, total);
-            trecho[^sobra..].CopyTo(chars);
-        }
-
-        return acertos;
     }
 }
