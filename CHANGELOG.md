@@ -13,3 +13,4 @@ O projeto ainda não tem versões publicadas.
 - Leitor: mapeamento de colunas pelo nome do cabeçalho (NFC, comparação exata), com erros claros e sem eco de conteúdo do arquivo.
 - Leitura interna das linhas da aba (`LerLinhasBrutas`): só as 10 colunas mapeadas, valores sem converter, linhas em branco ignoradas e linhas curtas completadas com nulo.
 - `Ler` devolve `Pedido`: serial do Excel vira `DateOnly`, `''` vira nulo nas colunas opcionais e linha inválida lança `LinhaInvalidaException` (linha e coluna, sem conteúdo de célula) na enumeração.
+- Texto: NFC e trim em todos os textos do `Pedido` (o resto fica como veio) e `TextoNormalizado.Chave` para comparar e buscar (NFC, trim, espaços colapsados, sem acento, minúsculas), sem uso no dado guardado.

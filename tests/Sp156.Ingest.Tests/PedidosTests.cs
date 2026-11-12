@@ -68,6 +68,15 @@ public class PedidosTests
         Assert.Equal(27, pedidos.Distinct().Count()); // ADR 0003: não deduplicar
     }
 
+    [Fact]
+    public void Espaco_duplo_do_meio_da_fixture_e_mantido_no_pedido()
+    {
+        // Fidelidade à fonte (tarefa 5): a normalização NÃO é aplicada ao dado guardado.
+        var pedidos = PedidosDaFixture();
+
+        Assert.Contains(pedidos, p => p.Assunto == "Reparos em  Asfalto, Pontes, Viadutos e Túneis");
+    }
+
     // --- Erros de linha saem na enumeração, com a linha real da planilha ------------------------
 
     [Fact]

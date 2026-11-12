@@ -1,10 +1,12 @@
 using System.Globalization;
+using System.Text;
 
 namespace Sp156.Ingest;
 
 /// <summary>
-/// Converte a linha bruta em <see cref="Pedido"/>. Só converte tipos; textos passam como vieram
-/// (a normalização é outra etapa). Os erros informam a linha e a coluna, nunca o conteúdo da célula.
+/// Converte a linha bruta em <see cref="Pedido"/>. Textos recebem NFC e trim, nada além disso
+/// (a forma comparável é <see cref="TextoNormalizado.Chave"/>, não guardada). Os erros informam a
+/// linha e a coluna, nunca o conteúdo da célula.
 /// </summary>
 internal static class ConversorDePedido
 {
@@ -45,12 +47,19 @@ internal static class ConversorDePedido
     private static string Obrigatorio(int linha, string coluna, object? valor) =>
         Opcional(valor) ?? throw Vazia(linha, coluna);
 
-    private static string? Opcional(object? valor) => valor switch
+    // NFC e trim; vazio depois disso vira null. O espaço do meio fica como veio (fidelidade à fonte).
+    private static string? Opcional(object? valor)
     {
-        null or "" => null,
-        string texto => texto,
-        _ => Convert.ToString(valor, CultureInfo.InvariantCulture),
-    };
+        var texto = valor switch
+        {
+            null => null,
+            string s => s,
+            _ => Convert.ToString(valor, CultureInfo.InvariantCulture),
+        };
+
+        texto = texto?.Normalize(NormalizationForm.FormC).Trim();
+        return string.IsNullOrEmpty(texto) ? null : texto;
+    }
 
     private static LinhaInvalidaException Vazia(int linha, string coluna) =>
         new(linha, coluna, $"Linha {linha}: a coluna obrigatória '{coluna}' está vazia.");

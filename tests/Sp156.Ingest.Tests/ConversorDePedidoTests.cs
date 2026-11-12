@@ -1,3 +1,4 @@
+using System.Globalization;
 using Sp156.Ingest;
 
 namespace Sp156.Ingest.Tests;
@@ -70,15 +71,57 @@ public class ConversorDePedidoTests
     }
 
     [Fact]
-    public void Textos_passam_como_vieram_sem_normalizacao()
+    public void Texto_recebe_trim_mas_mantem_o_espaco_duplo_do_meio()
     {
-        // Normalização (espaços, acentos) é a tarefa 5.
-        var pedido = ConversorDePedido.Converter(Bruta() with { Assunto = " Reparos  em Asfalto ", Orgao = "INTEGRAÇÃO-SMGI/SGZ" });
+        // Fidelidade à fonte: só as bordas mudam. A forma comparável é TextoNormalizado.Chave.
+        var pedido = ConversorDePedido.Converter(Bruta() with { Assunto = "  Reparos em  Asfalto \t", Orgao = "INTEGRAÇÃO-SMGI/SGZ" });
 
-        Assert.Equal(" Reparos  em Asfalto ", pedido.Assunto);
-        Assert.Equal("INTEGRAÇÃO-SMGI/SGZ", pedido.Orgao);
+        Assert.Equal("Reparos em  Asfalto", pedido.Assunto);
+        Assert.Equal("INTEGRAÇÃO-SMGI/SGZ", pedido.Orgao); // acento e caixa intactos
         Assert.Equal("PORTAL", pedido.MeioComunicacao);
         Assert.Equal("Finalizada", pedido.Status);
+    }
+
+    [Fact]
+    public void Texto_decomposto_nfd_vira_nfc()
+    {
+        var nfd = "Servic\u0327o";
+        Assert.NotEqual("Serviço", nfd); // garante que o teste exercita NFD
+
+        var pedido = ConversorDePedido.Converter(Bruta() with { Servico = nfd, Distrito = "Vila Sa\u0302nia" });
+
+        Assert.Equal("Serviço", pedido.Servico);
+        Assert.Equal("Vila Sânia", pedido.Distrito);
+    }
+
+    [Fact]
+    public void Coluna_opcional_so_com_espacos_vira_null()
+    {
+        var pedido = ConversorDePedido.Converter(Bruta() with { Distrito = "   ", MeioComunicacao = "\t " });
+
+        Assert.Null(pedido.Distrito);
+        Assert.Null(pedido.MeioComunicacao);
+    }
+
+    [Fact]
+    public void Valor_numerico_em_coluna_de_texto_vira_texto_com_cultura_invariante()
+    {
+        // Cultura atual com vírgula decimal: só InvariantCulture dá "1234.5".
+        var virgula = (CultureInfo)CultureInfo.InvariantCulture.Clone();
+        virgula.NumberFormat.NumberDecimalSeparator = ",";
+        var anterior = CultureInfo.CurrentCulture;
+        CultureInfo.CurrentCulture = virgula;
+        try
+        {
+            var pedido = ConversorDePedido.Converter(Bruta() with { Tema = 1234.5, Distrito = 1234.5 });
+
+            Assert.Equal("1234.5", pedido.Tema);
+            Assert.Equal("1234.5", pedido.Distrito);
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = anterior;
+        }
     }
 
     // --- Colunas obrigatórias ------------------------------------------------------------------
@@ -104,6 +147,23 @@ public class ConversorDePedidoTests
         Assert.Equal(coluna, ex.Coluna);
         Assert.Contains("7", ex.Message);
         Assert.Contains(coluna, ex.Message);
+    }
+
+    [Theory]
+    [InlineData("Tema")]
+    [InlineData("Assunto")]
+    [InlineData("Serviço")]
+    [InlineData("Status")]
+    [InlineData("Órgão")]
+    public void Texto_obrigatorio_que_fica_vazio_apos_o_trim_lanca_excecao_sem_ecoar_o_valor(string coluna)
+    {
+        var ex = Assert.Throws<LinhaInvalidaException>(() => ConversorDePedido.Converter(Com(coluna, " \t  ", linha: 12)));
+
+        Assert.Equal(12, ex.Linha);
+        Assert.Equal(coluna, ex.Coluna);
+        Assert.Contains("12", ex.Message);
+        Assert.Contains(coluna, ex.Message);
+        Assert.DoesNotContain("\t", ex.Message);
     }
 
     // --- Data inválida -------------------------------------------------------------------------
