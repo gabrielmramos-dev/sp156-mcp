@@ -15,3 +15,6 @@ O projeto ainda não tem versões publicadas.
 - `Ler` devolve `Pedido`: serial do Excel vira `DateOnly`, `''` vira nulo nas colunas opcionais e linha inválida lança `LinhaInvalidaException` (linha e coluna, sem conteúdo de célula) na enumeração.
 - Texto: NFC e trim em todos os textos do `Pedido` (o resto fica como veio) e `TextoNormalizado.Chave` para comparar e buscar (NFC, trim, espaços colapsados, sem acento, minúsculas), sem uso no dado guardado.
 - Teste de fumaça com o arquivo real (`SP156_XLSX`): `FactArquivoRealAttribute` marca o teste como `Skipped` sem a variável, e o teste confere os totais da spec e imprime tempo e memória sem afirmá-los.
+
+### Alterado
+- Migração de .NET 8 para .NET 10 (`net10.0`, SDK 10.0.115 em `global.json`, mesma política `rollForward: latestFeature`), pois o .NET 8 saiu de suporte em 10/11/2026. Decisão no ADR 0006.
