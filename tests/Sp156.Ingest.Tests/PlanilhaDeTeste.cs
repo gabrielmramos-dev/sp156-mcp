@@ -69,4 +69,21 @@ internal static class PlanilhaDeTeste
             linha[Array.IndexOf(CabecalhoDoArquivo, coluna)] = valor;
         return linha;
     }
+
+    // Valores de Logradouro, CEP, Latitude e Longitude da fixture (7+ caracteres, para não casar por acaso).
+    public static HashSet<string> ValoresDeEnderecoDaFixture()
+    {
+        var valores = new HashSet<string>();
+        using var xlsx = AbrirFixture();
+        using var leitor = ExcelDataReader.Create(xlsx, ExcelWorkbookType.ExcelXml);
+        Assert.True(leitor.TryOpenWorksheet(Aba));
+        var posicoes = new[] { "Logradouro", "CEP", "Latitude", "Longitude" }
+            .Select(nome => Enumerable.Range(0, leitor.FieldCount).First(i => leitor.GetName(i) == nome))
+            .ToArray();
+        while (leitor.Read())
+            foreach (var i in posicoes)
+                if (i < leitor.RowFieldCount && leitor.GetString(i).Length >= 7)
+                    valores.Add(leitor.GetString(i));
+        return valores;
+    }
 }

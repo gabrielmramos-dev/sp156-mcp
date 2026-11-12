@@ -163,26 +163,10 @@ public sealed class GravadorSqliteTests : IDisposable
 
         // Todos os valores de Logradouro, CEP, Latitude e Longitude da fixture (de 7+ caracteres,
         // para não casar por acaso com "0" ou com números curtos).
-        var valores = ValoresDeEnderecoDaFixture();
+        var valores = PlanilhaDeTeste.ValoresDeEnderecoDaFixture();
         Assert.True(valores.Count > 20, "a fixture deveria ter valores de endereço para conferir");
         foreach (var valor in valores)
             Assert.False(Contem(bytes, valor), "o .db contém um valor de endereço da fixture");
-    }
-
-    private static HashSet<string> ValoresDeEnderecoDaFixture()
-    {
-        var valores = new HashSet<string>();
-        using var xlsx = AbrirFixture();
-        using var leitor = ExcelDataReader.Create(xlsx, ExcelWorkbookType.ExcelXml);
-        Assert.True(leitor.TryOpenWorksheet(Aba));
-        var posicoes = new[] { "Logradouro", "CEP", "Latitude", "Longitude" }
-            .Select(nome => Enumerable.Range(0, leitor.FieldCount).First(i => leitor.GetName(i) == nome))
-            .ToArray();
-        while (leitor.Read())
-            foreach (var i in posicoes)
-                if (i < leitor.RowFieldCount && leitor.GetString(i).Length >= 7)
-                    valores.Add(leitor.GetString(i));
-        return valores;
     }
 
     // --- 4. Destino existente e falha no meio --------------------------------------------------

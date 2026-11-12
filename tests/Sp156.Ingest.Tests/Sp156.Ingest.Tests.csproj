@@ -29,6 +29,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Sp156.Ingest\Sp156.Ingest.csproj" />
+    <ProjectReference Include="..\..\src\Sp156.Cli\Sp156.Cli.csproj" />
   </ItemGroup>
 
 </Project>
