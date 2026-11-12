@@ -100,6 +100,29 @@ public class LinhasBrutasTests
         Assert.Equal(1, linhas.Count(l => l.MeioComunicacao is null));
     }
 
+    // --- Dono do Stream: o chamador ----------------------------------------------------------
+
+    [Fact]
+    public void Stream_do_chamador_continua_aberto_depois_de_enumerar_tudo()
+    {
+        using var xlsx = AbrirFixture();
+
+        var linhas = LeitorSolicitacoes.LerLinhasBrutas(xlsx).ToList();
+
+        Assert.Equal(30, linhas.Count); // enumerou até o fim
+        Assert.True(xlsx.CanRead, "o leitor fechou o Stream do chamador");
+    }
+
+    [Fact]
+    public void Stream_do_chamador_continua_aberto_quando_o_cabecalho_e_invalido()
+    {
+        using var xlsx = Criar(Aba, new[] { "Data de Abertura", "Tema" }, new string?[] { "x", "y" });
+
+        Assert.Throws<ColunaObrigatoriaAusenteException>(() => LeitorSolicitacoes.LerLinhasBrutas(xlsx));
+
+        Assert.True(xlsx.CanRead, "o leitor fechou o Stream do chamador");
+    }
+
     // --- Privacidade (ADR 0002) ----------------------------------------------------------------
 
     [Fact]
