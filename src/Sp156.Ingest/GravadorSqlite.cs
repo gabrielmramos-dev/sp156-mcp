@@ -46,7 +46,8 @@ public static class GravadorSqlite
 
         var temporario = caminho + ".tmp";
         if (File.Exists(caminho)) throw new IOException("O arquivo de destino já existe.");
-        if (File.Exists(temporario)) throw new IOException("Existe um arquivo .tmp de uma gravação anterior.");
+        if (File.Exists(temporario))
+            throw new IOException($"Existe um arquivo .tmp de uma gravação anterior: '{temporario}'. Ele pode ser apagado se nenhuma outra gravação estiver em andamento.");
 
         try
         {

@@ -230,6 +230,19 @@ public sealed class GravadorSqliteTests : IDisposable
     }
 
     [Fact]
+    public void Mensagem_do_tmp_orfao_cita_o_caminho_e_diz_que_pode_ser_apagado_sem_trazer_celulas()
+    {
+        File.WriteAllBytes(Db + ".tmp", Encoding.UTF8.GetBytes("sobra"));
+
+        var ex = Assert.Throws<IOException>(() => Gravar(new[] { Novo(assunto: "A-SEGREDO") }));
+
+        Assert.Contains(Db + ".tmp", ex.Message);
+        Assert.Contains("pode ser apagado", ex.Message);
+        Assert.Contains("nenhuma outra gravação", ex.Message);
+        Assert.DoesNotContain("SEGREDO", ex.Message);
+    }
+
+    [Fact]
     public void Pedido_que_viola_o_esquema_lanca_SqliteException_sem_ecoar_celulas_e_nao_deixa_arquivos()
     {
         var pedidos = new[]

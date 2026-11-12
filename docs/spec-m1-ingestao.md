@@ -66,7 +66,7 @@ CREATE TABLE pedidos (
   - `ck_data_abertura_formato` e `ck_data_finalizacao_formato`: a data é gravada sempre como `yyyy-MM-dd`, o que mantém a ordenação e a comparação por texto corretas. A de finalização também aceita `NULL`.
   - `ck_obrigatorios_nao_vazios`: os cinco textos obrigatórios nunca ficam vazios (o `NOT NULL` não pega `''`).
   - `ck_opcionais_nulo_ou_preenchido`: os três opcionais são `NULL` ou têm texto, nunca `''`, para que `IS NULL` conte tudo o que está ausente.
-- **Escrita segura:** grava em `<caminho>.tmp` e, no fim, renomeia com `File.Move(tmp, destino, overwrite: false)`. Se o destino já existir, lança `IOException` sem tocá-lo. Se a gravação falhar, o `.tmp` é apagado, e não ficam arquivos `-journal` ou `-wal` ao lado. Um `.tmp` deixado por uma gravação anterior também faz a gravação lançar `IOException`, sem ser tocado.
+- **Escrita segura:** grava em `<caminho>.tmp` e, no fim, renomeia com `File.Move(tmp, destino, overwrite: false)`. Se o destino já existir, lança `IOException` sem tocá-lo. Se a gravação falhar, o `.tmp` é apagado, e não ficam arquivos `-journal` ou `-wal` ao lado. Um `.tmp` deixado por uma gravação anterior também faz a gravação lançar `IOException`, sem ser tocado; a mensagem diz o caminho do `.tmp` e que ele pode ser apagado se nenhuma outra gravação estiver em andamento.
 - **Conexão:** `Pooling=False`, uma transação só e um comando parametrizado reaproveitado.
 - **Erros:** as mensagens de erro de gravação não trazem o conteúdo das células (ADR 0002): as do SQLite citam só o nome da restrição ou da coluna.
 

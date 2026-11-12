@@ -489,6 +489,11 @@ data/
 *.csv
 *.db
 *.sqlite
+*.sqlite3
+# arquivos auxiliares do SQLite (-journal, -wal, -shm) e o .tmp da gravação (já coberto por *.tmp)
+*.db-*
+*.sqlite-*
+*.sqlite3-*
 
 # a fixture fictícia pode ir para o git
 !tests/Sp156.Ingest.Tests/Fixtures/
