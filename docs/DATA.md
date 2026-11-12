@@ -4,6 +4,13 @@ Fonte: portal de dados abertos da Prefeitura de São Paulo, conjunto de dados do
 
 Os números abaixo foram **medidos por inspeção** do arquivo `arquivo-final-1-trim-25.xlsx` (1º trimestre de 2025), em 2026-10-23. Valem para esse arquivo, não para a série inteira.
 
+## Arquivo medido
+
+- **Nome:** `arquivo-final-1-trim-25.xlsx` (1º trimestre de 2025, XLSX).
+- **Tamanho:** 67.972.683 bytes.
+- **SHA-256:** `cb61cd3eaa3e1a3f92fc6bbd7f2b5926408f4101ef60f9be38e8113062c35f8e`.
+- **Data de modificação local:** 2026-10-23 18:41:47 (-03:00), segundo o `stat` da máquina de quem mediu. É a data de modificação **local**, não a data de publicação no portal; a data em que o arquivo foi baixado não foi registrada.
+
 ## Estrutura do arquivo
 
 - Duas abas: `Solicitações` e `Satisfação`.
@@ -44,6 +51,8 @@ Data de Abertura, Data de Finalização, Meio de Comunicação, Tema, Assunto, S
 
 A documentação (glossário e página do conjunto de dados) descreve colunas e valores que **não** coincidem com o arquivo: por exemplo, `Subprefeitura` (real: `Prefeitura Operacional`), status `Indeferido`/`Aberta` (inexistentes no arquivo) e ausência de latitude/longitude na aba `Solicitações` (existem). Regra do projeto: **validar pelo conteúdo do arquivo, não pela documentação.**
 
+**Período coberto.** A página [Dados Abertos – SP156](https://transparencia.prefeitura.sp.gov.br/dados-abertos-sp156/) do Portal da Transparência diz que os relatórios cobrem de 01/01/2012 a 31/03/2023, mas isso está **desatualizado**. A página do conjunto de dados (https://dados.prefeitura.sp.gov.br/dataset/dados-do-sp156), consultada em 2026-11-12, lista arquivos semestrais de 2012 a 2014 e trimestrais de 2015 ao 3º trimestre de 2026, com um CSV e um XLSX para cada trimestre, e diz que os relatórios cobrem de 1º de janeiro de 2012 a 30 de setembro de 2026. O texto dessa página afirma que "os relatórios mais recentes foram extraídos em 19 de outubro de 2026" e que os conjuntos são republicados periodicamente para atualizar o campo de status. A tabela de metadados da mesma página mostrava "Última Atualização: 12 de Novembro de 2026, 15:29 (UTC)".
+
 ## Verificado e ainda não verificado
 
 **Verificado, só neste arquivo (1º trimestre de 2025):** a ingestão completa reproduz os totais acima (linhas, status, `Data de Finalização` nula, `Meio de Comunicação` nulo), e os tipos de célula das 10 colunas usadas são os descritos em "Estrutura do arquivo".
@@ -51,6 +60,10 @@ A documentação (glossário e página do conjunto de dados) descreve colunas e 
 **Ainda não verificado:**
 
 - Os demais trimestres e anos: formato, tamanho, mudanças de colunas e variação de acento, caixa ou espaços nos textos. Checar antes de qualquer normalização mais agressiva do dado guardado.
+- **Só o 1º trimestre de 2025 foi medido** (o arquivo descrito em "Arquivo medido"). Para o 3º trimestre de 2026 o portal lista arquivos que nunca foram abertos aqui.
+- **Os CSV não foram avaliados:** encoding, delimitador e consistência com o XLSX do mesmo trimestre.
+- **Retificação nos trimestres de 2025.** A descrição do portal para os trimestres de 2025 (1º ao 4º) menciona que os dados foram "retificados agora, com..." (o texto foi lido truncado, sem o restante). Não se sabe o que foi retificado nem se o arquivo medido é anterior ou posterior à retificação.
+- Se existe uma versão republicada mais nova do arquivo medido: o portal diz que republica os conjuntos para atualizar o status, e o arquivo medido tem a última finalização em 2026-08-05.
 - Se algum trimestre excede o limite de linhas do XLSX (hipótese não testada).
 - Comparabilidade entre o sistema de 2012–2014 e o de 2015 em diante.
 - O que a biblioteca de leitura decodifica em memória das colunas de endereço (a proteção vale para o que é mapeado e gravado; ver ADR 0002).

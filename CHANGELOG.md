@@ -5,6 +5,9 @@ A versão 0.1.0 existe como tag local; nada foi publicado.
 
 ## [Não lançado]
 
+### Alterado
+- Documentação (`docs/DATA.md`): registro do arquivo medido (nome, tamanho, SHA-256 e data de modificação local), correção sobre o período coberto (a página da Transparência está desatualizada em relação ao portal de dados abertos) e novos itens em "ainda não verificado" (CSV, retificação de 2025, só o 1º TRI 2025 medido).
+
 ## [0.1.0] - 2026-11-12
 
 Marco 1: ingestão do SP156 para SQLite. Ainda não há servidor MCP.
