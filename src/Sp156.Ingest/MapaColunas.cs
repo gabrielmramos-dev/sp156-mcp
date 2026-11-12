@@ -44,7 +44,7 @@ internal sealed class MapaColunas
             throw new ColunaObrigatoriaAusenteException(ausentes, MensagemDeAusentes(ausentes, cabecalhos));
 
         if (duplicadas.Count > 0)
-            throw new InvalidDataException($"Cabeçalho obrigatório duplicado: {string.Join(", ", duplicadas)}.");
+            throw MarcaDeErro.Marcar(new InvalidDataException($"Cabeçalho obrigatório duplicado: {string.Join(", ", duplicadas)}."));
 
         return new MapaColunas(posicoes);
     }

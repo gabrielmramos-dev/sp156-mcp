@@ -4,9 +4,10 @@ using Sp156.Ingest;
 namespace Sp156.Cli;
 
 /// <summary>
-/// Linha de comando. Códigos de saída: 0 sucesso, 1 erro esperado (arquivo, formato ou dado),
-/// 2 uso incorreto. As mensagens nunca trazem conteúdo de célula (ADR 0002): só caminhos de arquivo,
-/// nomes de coluna e número de linha.
+/// Linha de comando. Códigos de saída: 0 sucesso, 1 erro (esperado ou inesperado), 2 uso incorreto.
+/// As mensagens nunca trazem conteúdo de célula (ADR 0002): só caminhos de arquivo, nomes de coluna,
+/// número de linha e, no erro inesperado, o nome do tipo da exceção. A mensagem de uma exceção que
+/// não é nossa nunca é impressa, porque uma biblioteca pode colocar nela conteúdo do arquivo.
 /// </summary>
 public static class Programa
 {
@@ -37,6 +38,13 @@ public static class Programa
 
     private static int Ingerir(string xlsx, string destino, TextWriter saida, TextWriter erro)
     {
+        // Antes de abrir o XLSX; o Gravar checa de novo, por causa da corrida.
+        if (File.Exists(destino))
+        {
+            erro.WriteLine($"Erro ao gravar '{destino}': O arquivo de destino já existe.");
+            return 1;
+        }
+
         FileStream entrada;
         try
         {
@@ -61,7 +69,12 @@ public static class Programa
                 saida.WriteLine($"{gravadas} pedidos gravados em {destino}");
                 return 0;
             }
-            catch (Exception ex) when (ex is ColunaObrigatoriaAusenteException or LinhaInvalidaException or InvalidDataException)
+            catch (Exception ex) when (ex is ColunaObrigatoriaAusenteException or LinhaInvalidaException)
+            {
+                erro.WriteLine($"Erro: {ex.Message}");
+                return 1;
+            }
+            catch (InvalidDataException ex) when (MarcaDeErro.EhNossa(ex))
             {
                 erro.WriteLine($"Erro: {ex.Message}");
                 return 1;
@@ -69,6 +82,12 @@ public static class Programa
             catch (Exception ex) when (ex is IOException or SqliteException)
             {
                 erro.WriteLine($"Erro ao gravar '{destino}': {ex.Message}");
+                return 1;
+            }
+            catch (Exception ex)
+            {
+                // Sem ex.Message nem stack trace: a mensagem de uma biblioteca pode trazer conteúdo do arquivo.
+                erro.WriteLine($"Erro inesperado ao processar '{xlsx}' ({ex.GetType().Name}). O arquivo pode estar corrompido ou não ser um XLSX.");
                 return 1;
             }
         }

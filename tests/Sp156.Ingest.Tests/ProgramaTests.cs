@@ -20,7 +20,16 @@ public sealed class ProgramaTests : IDisposable
     {
         var saida = new StringWriter();
         var erro = new StringWriter();
-        var codigo = Programa.Executar(args, saida, erro);
+        int codigo;
+        try
+        {
+            codigo = Programa.Executar(args, saida, erro);
+        }
+        catch (Exception ex)
+        {
+            Assert.Fail($"Executar deixou subir uma exceção ({ex.GetType().Name}); os erros esperados devem virar código de saída.");
+            throw;
+        }
         return (codigo, saida.ToString(), erro.ToString());
     }
 
@@ -190,6 +199,74 @@ public sealed class ProgramaTests : IDisposable
         Assert.Equal("", saida);
         Assert.Equal(orfao, File.ReadAllBytes(Db + ".tmp"));
         SemDadosDeEndereco(saida, erro);
+        Assert.False(File.Exists(Db));
+    }
+
+    // --- Arquivo que não é um XLSX válido (erro inesperado) -------------------------------------
+
+    private void AssertErroInesperado(string caminho, int codigo, string saida, string erro)
+    {
+        Assert.Equal(1, codigo);
+        Assert.Contains($"Erro inesperado ao processar '{caminho}' (InvalidDataException).", erro);
+        Assert.Contains("O arquivo pode estar corrompido ou não ser um XLSX.", erro);
+        Assert.DoesNotContain("End of Central Directory", erro); // mensagem da biblioteca
+        Assert.DoesNotContain("   at ", erro);                   // stack trace
+        Assert.DoesNotContain("   em ", erro);
+        Assert.Single(erro.TrimEnd().Split('\n'));
+        Assert.Equal("", saida);
+        SemDadosDeEndereco(saida, erro);
+        Assert.Equal(new[] { Path.GetFileName(caminho) }, EntradasDaPasta()); // nem .db nem .tmp
+    }
+
+    [Fact]
+    public void Arquivo_de_texto_renomeado_para_xlsx_devolve_1_com_erro_inesperado_sem_a_mensagem_da_biblioteca()
+    {
+        var entrada = Path.Combine(_pasta, "texto.xlsx");
+        File.WriteAllText(entrada, "isto não é um XLSX, é só texto\n");
+
+        var (codigo, saida, erro) = Rodar("ingerir", entrada, Db);
+
+        AssertErroInesperado(entrada, codigo, saida, erro);
+    }
+
+    [Fact]
+    public void Fixture_truncada_na_metade_devolve_1_com_erro_inesperado_sem_a_mensagem_da_biblioteca()
+    {
+        var bytes = File.ReadAllBytes(Fixture);
+        var entrada = Path.Combine(_pasta, "truncado.xlsx");
+        File.WriteAllBytes(entrada, bytes[..(bytes.Length / 2)]);
+
+        var (codigo, saida, erro) = Rodar("ingerir", entrada, Db);
+
+        AssertErroInesperado(entrada, codigo, saida, erro);
+    }
+
+    [Fact]
+    public void Destino_existente_com_xlsx_invalido_reporta_o_erro_do_destino()
+    {
+        var entrada = Path.Combine(_pasta, "texto.xlsx");
+        File.WriteAllText(entrada, "isto não é um XLSX\n");
+        var original = Encoding.UTF8.GetBytes("nao toque neste arquivo");
+        File.WriteAllBytes(Db, original);
+
+        var (codigo, saida, erro) = Rodar("ingerir", entrada, Db);
+
+        Assert.Equal(1, codigo);
+        Assert.Contains("já existe", erro);
+        Assert.DoesNotContain("Erro inesperado", erro);
+        Assert.Equal(original, File.ReadAllBytes(Db));
+    }
+
+    [Fact]
+    public void Cabecalho_duplicado_devolve_1_com_a_mensagem_amigavel_do_Ingest()
+    {
+        var entrada = GravarXlsx(CriarComCabecalhoDuplicado());
+
+        var (codigo, saida, erro) = Rodar("ingerir", entrada, Db);
+
+        Assert.Equal(1, codigo);
+        Assert.Contains("Cabeçalho obrigatório duplicado: Tema", erro);
+        Assert.DoesNotContain("Erro inesperado", erro);
         Assert.False(File.Exists(Db));
     }
 

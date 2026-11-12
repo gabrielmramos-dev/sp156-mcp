@@ -86,4 +86,28 @@ internal static class PlanilhaDeTeste
                     valores.Add(leitor.GetString(i));
         return valores;
     }
+
+    // Planilha com o cabeçalho completo em que a coluna "Tema" aparece duas vezes. O DataTable não aceita
+    // nomes repetidos, então cria "Tema#2" e troca o texto dentro do XLSX.
+    public static MemoryStream CriarComCabecalhoDuplicado()
+    {
+        var cabecalhos = CabecalhoDoArquivo.Append("Tema#2").ToArray();
+        using var original = Criar(Aba, cabecalhos, cabecalhos.Select(_ => (string?)"x").ToArray());
+
+        var saida = new MemoryStream();
+        using (var de = new System.IO.Compression.ZipArchive(original, System.IO.Compression.ZipArchiveMode.Read))
+        using (var para = new System.IO.Compression.ZipArchive(saida, System.IO.Compression.ZipArchiveMode.Create, leaveOpen: true))
+        {
+            foreach (var entrada in de.Entries)
+            {
+                using var origem = entrada.Open();
+                using var leitor = new StreamReader(origem);
+                var conteudo = leitor.ReadToEnd().Replace("Tema#2", "Tema");
+                using var destino = new StreamWriter(para.CreateEntry(entrada.FullName).Open(), new System.Text.UTF8Encoding(false));
+                destino.Write(conteudo);
+            }
+        }
+        saida.Position = 0;
+        return saida;
+    }
 }

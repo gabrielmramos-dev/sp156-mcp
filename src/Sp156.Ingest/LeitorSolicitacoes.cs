@@ -51,7 +51,7 @@ public static class LeitorSolicitacoes
             .FirstOrDefault(n => string.Equals(n.Normalize(NormalizationForm.FormC), alvo, StringComparison.Ordinal));
 
         if (nome is null || !leitor.TryOpenWorksheet(nome))
-            throw new InvalidDataException($"Aba '{Aba}' não encontrada.");
+            throw MarcaDeErro.Marcar(new InvalidDataException($"Aba '{Aba}' não encontrada."));
     }
 
     private static IEnumerable<LinhaBruta> LinhasBrutas(ExcelDataReader leitor, MapaColunas mapa)
