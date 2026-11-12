@@ -32,7 +32,7 @@ Data de Abertura, Data de Finalização, Meio de Comunicação, Tema, Assunto, S
 | Distrito e Prefeitura Operacional vazios em ~50% das linhas reais | Toda resposta por distrito deve informar quantas linhas ficaram sem distrito |
 | Geografia depende do tema (Rua e bairro, Lixo e limpeza, Urgência ~100%; Cultura/esporte, Finanças, Saúde 0–2%) | Perguntas geográficas só valem para parte dos temas |
 | Latitude/Longitude vêm como texto; há 2.517 linhas (0, 0) e ~2.570 fora de SP capital | (Irrelevante hoje: as colunas são descartadas) |
-| `Assunto` com espaço duplo; `Órgão` com e sem acento (`INTEGRAÇÃO-`/`INTEGRACAO-`) | Normalizar na ingestão |
+| Espaço duplo no meio do texto em 13 valores (2 em `Assunto`, 11 em `Serviço`); sem variação de acento nem de caixa em nenhuma coluna | O texto guardado recebe só NFC e trim; o espaço duplo é mantido. `TextoNormalizado.Chave` existe para busca. Normalização mais agressiva adiada por falta de evidência (1 trimestre medido) |
 
 ## Divergências entre a documentação oficial e o arquivo real
 
@@ -40,6 +40,7 @@ A documentação (glossário e página do conjunto de dados) descreve colunas e 
 
 ## O que ainda não foi verificado
 
+- Se os demais trimestres têm variação de acento, caixa ou espaços nos textos. Checar antes de qualquer normalização mais agressiva do dado guardado.
 - Os demais trimestres e anos (formato, tamanho, mudanças de colunas).
 - Se algum trimestre excede o limite de linhas do XLSX (hipótese não testada).
 - Comparabilidade entre o sistema de 2012–2014 e o de 2015 em diante.
