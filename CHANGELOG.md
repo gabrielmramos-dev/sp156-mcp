@@ -14,3 +14,4 @@ O projeto ainda não tem versões publicadas.
 - Leitura interna das linhas da aba (`LerLinhasBrutas`): só as 10 colunas mapeadas, valores sem converter, linhas em branco ignoradas e linhas curtas completadas com nulo.
 - `Ler` devolve `Pedido`: serial do Excel vira `DateOnly`, `''` vira nulo nas colunas opcionais e linha inválida lança `LinhaInvalidaException` (linha e coluna, sem conteúdo de célula) na enumeração.
 - Texto: NFC e trim em todos os textos do `Pedido` (o resto fica como veio) e `TextoNormalizado.Chave` para comparar e buscar (NFC, trim, espaços colapsados, sem acento, minúsculas), sem uso no dado guardado.
+- Teste de fumaça com o arquivo real (`SP156_XLSX`): `FactArquivoRealAttribute` marca o teste como `Skipped` sem a variável, e o teste confere os totais da spec e imprime tempo e memória sem afirmá-los.
