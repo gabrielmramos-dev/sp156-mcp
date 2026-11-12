@@ -38,6 +38,38 @@ Erros, todos lançados **na chamada de `Ler`**, antes de devolver qualquer pedid
 
 As mensagens de erro **nunca ecoam o conteúdo do arquivo**. A de coluna ausente traz só os nomes ausentes, a contagem de cabeçalhos encontrados e, por coluna ausente, cabeçalhos que diferem dela apenas por acento ou caixa.
 
+## Esquema SQLite
+`GravadorSqlite.Gravar(IEnumerable<Pedido> pedidos, string caminho)` grava os pedidos em uma tabela só e devolve a quantidade de linhas gravadas. Uma linha no banco por pedido lido: sem deduplicação (ADR 0003), sem `PRIMARY KEY` e sem índices. O `rowid` implícito do SQLite preserva a ordem de inserção. As colunas de endereço e coordenadas não existem (ADR 0002).
+
+```sql
+CREATE TABLE pedidos (
+    data_abertura          TEXT NOT NULL,
+    data_finalizacao       TEXT,
+    meio_comunicacao       TEXT,
+    tema                   TEXT NOT NULL,
+    assunto                TEXT NOT NULL,
+    servico                TEXT NOT NULL,
+    status                 TEXT NOT NULL,
+    orgao                  TEXT NOT NULL,
+    prefeitura_operacional TEXT,
+    distrito               TEXT,
+    CONSTRAINT ck_data_abertura_formato CHECK (data_abertura GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]'),
+    CONSTRAINT ck_data_finalizacao_formato CHECK (data_finalizacao IS NULL OR data_finalizacao GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]'),
+    CONSTRAINT ck_obrigatorios_nao_vazios CHECK (tema <> '' AND assunto <> '' AND servico <> '' AND status <> '' AND orgao <> ''),
+    CONSTRAINT ck_opcionais_nulo_ou_preenchido CHECK ((meio_comunicacao IS NULL OR meio_comunicacao <> '') AND (prefeitura_operacional IS NULL OR prefeitura_operacional <> '') AND (distrito IS NULL OR distrito <> ''))
+);
+```
+
+- **Datas:** `TEXT` no formato `yyyy-MM-dd`, com cultura invariante (ex.: `2025-01-06`).
+- **Ausência:** campo opcional ausente é `NULL` de verdade, nunca `''`.
+- **O que cada restrição protege:**
+  - `ck_data_abertura_formato` e `ck_data_finalizacao_formato`: a data é gravada sempre como `yyyy-MM-dd`, o que mantém a ordenação e a comparação por texto corretas. A de finalização também aceita `NULL`.
+  - `ck_obrigatorios_nao_vazios`: os cinco textos obrigatórios nunca ficam vazios (o `NOT NULL` não pega `''`).
+  - `ck_opcionais_nulo_ou_preenchido`: os três opcionais são `NULL` ou têm texto, nunca `''`, para que `IS NULL` conte tudo o que está ausente.
+- **Escrita segura:** grava em `<caminho>.tmp` e, no fim, renomeia com `File.Move(tmp, destino, overwrite: false)`. Se o destino já existir, lança `IOException` sem tocá-lo. Se a gravação falhar, o `.tmp` é apagado, e não ficam arquivos `-journal` ou `-wal` ao lado. Um `.tmp` deixado por uma gravação anterior também faz a gravação lançar `IOException`, sem ser tocado.
+- **Conexão:** `Pooling=False`, uma transação só e um comando parametrizado reaproveitado.
+- **Erros:** as mensagens de erro de gravação não trazem o conteúdo das células (ADR 0002): as do SQLite citam só o nome da restrição ou da coluna.
+
 ## Critérios de aceitação (fixture `sp156_fixture.xlsx`)
 | Verificação | Esperado |
 |---|---|

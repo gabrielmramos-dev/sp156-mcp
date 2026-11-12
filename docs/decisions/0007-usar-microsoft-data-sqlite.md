@@ -19,6 +19,8 @@ O Marco 1 grava os `Pedido` em um arquivo SQLite (spec M1). Precisamos de um ace
 
 Escolhido **Microsoft.Data.Sqlite 10.0.15** (publicada em 10/11/2026), fixada em `src/Sp156.Ingest`. A 11.0.0 saiu no mesmo dia e a API do NuGet lista para ela só o alvo `net10.0`; a série 10.x lista `netstandard2.0`. Ficamos na 10.x, a mesma série do .NET 10 escolhido no ADR 0006. Nenhum outro pacote foi adicionado.
 
+O acesso é **ADO.NET direto**, com comando parametrizado e sem ORM. É uma decisão de escopo, não uma comparação medida: a gravação é em lote, de uma tabela só, e não há necessidade concreta de um ORM.
+
 Verificado em 12/11/2026:
 
 * **Licença:** MIT (`Microsoft.Data.Sqlite` e `Microsoft.Data.Sqlite.Core`, conforme o `nuspec`). Os repositórios `dotnet/efcore` e `dotnet/dotnet`, este último o indicado no `nuspec`, também são MIT.
