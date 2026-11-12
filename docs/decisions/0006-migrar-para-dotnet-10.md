@@ -28,12 +28,12 @@ Escolhido o **.NET 10** (`net10.0`). Ele é LTS, foi lançado em 11/11/2025 e te
 Alternativas descartadas:
 
 * **.NET 8:** sem suporte desde 10/11/2026.
-* **.NET 11:** é STS e foi lançado em 10/11/2026, dois dias antes desta decisão. A mesma página dá o fim de suporte em **14/11/2028**, o mesmo do .NET 10, então não ganha tempo de suporte. Também não há SDK 11 instalado, e as bibliotecas que usamos (Sylvan.Data.Excel 0.x, xUnit) não foram testadas nele.
+* **.NET 11:** foi lançado em 10/11/2026, dois dias antes desta decisão, e a página oficial o classifica como STS, com fim de suporte em **14/11/2028**, o mesmo do .NET 10 (então não ganha tempo de suporte). O pacote `ModelContextProtocol`, que o Marco 2 deve usar, lista os alvos `net8.0`, `net9.0`, `net10.0` e `netstandard2.0`, sem `net11.0` (conferido na versão 2.4.0, publicada em 07/11/2026).
 
 ### Consequências
 
 * Bom: runtime com suporte até 14/11/2028, sem nova migração obrigatória nesse período.
-* Bom: o `Microsoft.Data.Sqlite` 10.x (previsto para a tarefa 8) e o .NET 10 acompanham a mesma versão principal.
+* Bom: o `Microsoft.Data.Sqlite` (previsto para a tarefa 8): o pacote é `netstandard2.0` (confirmado na página do NuGet) e funciona nos dois; a série 10.x está alinhada ao ciclo do .NET 10.
 * Ruim: o CI e quem contribui precisam do SDK 10.
 * Ruim: a decisão vence em 14/11/2028. Quando o .NET 12 (LTS) sair, reavaliar.
 
