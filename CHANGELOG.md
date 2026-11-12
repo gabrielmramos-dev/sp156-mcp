@@ -1,26 +1,29 @@
 # Changelog
 
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
-O projeto ainda não tem versões publicadas.
+A versão 0.1.0 existe como tag local; nada foi publicado.
 
 ## [Não lançado]
 
+## [0.1.0] - 2026-11-12
+
+Marco 1: ingestão do SP156 para SQLite. Ainda não há servidor MCP.
+
 ### Adicionado
-- Estrutura inicial da solução (`Sp156.Ingest` e testes).
-- Fixture fictícia do SP156 para testes.
-- Documentação: spec do Marco 1, notas sobre os dados e ADRs.
-- ADR 0005: escolha do Sylvan.Data.Excel para ler o XLSX, com medições do spike (`tools/spike-xlsx/`, fora da solução).
-- Leitor: mapeamento de colunas pelo nome do cabeçalho (NFC, comparação exata), com erros claros e sem eco de conteúdo do arquivo.
-- Leitura interna das linhas da aba (`LerLinhasBrutas`): só as 10 colunas mapeadas, valores sem converter, linhas em branco ignoradas e linhas curtas completadas com nulo.
-- `Ler` devolve `Pedido`: serial do Excel vira `DateOnly`, `''` vira nulo nas colunas opcionais e linha inválida lança `LinhaInvalidaException` (linha e coluna, sem conteúdo de célula) na enumeração.
+- `Sp156.Ingest`: leitura do XLSX (aba `Solicitações`) em streaming com Sylvan.Data.Excel, mapeando as colunas pelo nome do cabeçalho (NFC, comparação exata) e devolvendo `Pedido` com as 10 colunas usadas. Linhas em branco são ignoradas, linhas curtas completam as células ausentes com nulo, o serial do Excel vira `DateOnly` e `''` vira nulo nas colunas opcionais. Nenhuma coluna de endereço é mapeada (ADR 0002) e nada é deduplicado (ADR 0003).
+- Erros de aba e cabeçalho na chamada de `Ler`; erros de linha (`LinhaInvalidaException`, com linha e coluna) na enumeração. As mensagens nunca trazem conteúdo de célula.
 - Texto: NFC e trim em todos os textos do `Pedido` (o resto fica como veio) e `TextoNormalizado.Chave` para comparar e buscar (NFC, trim, espaços colapsados, sem acento, minúsculas), sem uso no dado guardado.
-- Teste de fumaça com o arquivo real (`SP156_XLSX`): `FactArquivoRealAttribute` marca o teste como `Skipped` sem a variável, e o teste confere os totais da spec e imprime tempo e memória sem afirmá-los.
+- `GravadorSqlite`: tabela `pedidos` (10 colunas, sem endereço, 4 `CHECK` nomeados, sem deduplicar). Escreve em `<caminho>.tmp` e renomeia no fim, sem tocar num destino existente e sem deixar `.tmp` ou `-journal` na falha.
+- `Sp156.Cli`: comando `ingerir <arquivo.xlsx> <saida.db>`, com parsing manual e sem pacote novo. Códigos de saída: 0 sucesso, 1 erro, 2 uso incorreto. Checa o destino antes de abrir o XLSX e trata arquivo corrompido ou que não é XLSX sem imprimir a mensagem da biblioteca (o `Sp156.Ingest` marca internamente as `InvalidDataException` que ele mesmo lança).
+- Testes: fixture fictícia; teste de fumaça com o arquivo real (`SP156_XLSX`, `Skipped` sem a variável) que confere os totais da spec; privacidade nos bytes do `.db` da fixture; privacidade por **amostra** no arquivo real do 1º trimestre de 2025 (não é prova exaustiva; ver ADR 0002); testes unitários do buscador de bytes (fronteira entre blocos, acentos).
+- Documentação: spec do Marco 1, notas sobre os dados (`docs/DATA.md`) e ADRs 0001 a 0007. `tools/spike-xlsx/` guarda a medição das bibliotecas de XLSX, fora da solução.
 
 ### Alterado
 - Migração de .NET 8 para .NET 10 (`net10.0`, SDK 10.0.115 em `global.json`, mesma política `rollForward: latestFeature`), pois o .NET 8 saiu de suporte em 10/11/2026. Decisão no ADR 0006.
-- Dependência `Microsoft.Data.Sqlite` 10.0.15 (MIT; traz o SQLite 3.53.3 nativo via `SQLitePCLRaw` 2.1.13, Apache-2.0). Decisão no ADR 0007.
-- `GravadorSqlite`: grava os `Pedido` em uma tabela `pedidos` (10 colunas, sem endereço, 4 `CHECK` nomeados, sem deduplicar). Escreve em `<caminho>.tmp` e renomeia no fim, sem tocar num destino existente e sem deixar `.tmp` ou `-journal` na falha. Teste com o arquivo real confere os totais da spec no banco.
-- `Sp156.Cli`: comando `ingerir <arquivo.xlsx> <saida.db>` (`dotnet run --project src/Sp156.Cli -- ...`), com parsing manual e sem pacote novo. Códigos de saída: 0 sucesso, 1 erro esperado, 2 uso incorreto; as mensagens não trazem conteúdo de célula.
+- Dependências: Sylvan.Data.Excel 0.5.8 (ADR 0005) e `Microsoft.Data.Sqlite` 10.0.15 (MIT; traz o SQLite 3.53.3 nativo via `SQLitePCLRaw` 2.1.13, Apache-2.0; ADR 0007).
 - `.gitignore` cobre `*.sqlite3` e os arquivos `-journal`, `-wal` e `-shm` do SQLite.
-- CLI: checa o destino antes de abrir o XLSX e trata exceção inesperada (arquivo corrompido ou que não é XLSX) com o nome do tipo da exceção, sem a mensagem da biblioteca e sem stack trace. O `Sp156.Ingest` marca (internamente) as `InvalidDataException` que ele mesmo lança, para o CLI imprimir só essas.
-- Teste de privacidade com o arquivo real: uma amostra determinística de valores de Logradouro, Número, CEP, Latitude e Longitude (7+ caracteres) não pode aparecer nos bytes do `.db` gerado. É uma amostra de 1 trimestre, não uma prova exaustiva (ver ADR 0002).
+
+### Limitações conhecidas
+- Verificado em um único arquivo (1º trimestre de 2025).
+- Nada se afirma sobre o que a biblioteca de leitura decodifica em memória.
+- A amostra de privacidade cobre `Número` quase nada (1 valor); a proteção dessa coluna vem do esquema.

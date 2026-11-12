@@ -11,6 +11,7 @@ Os números abaixo foram **medidos por inspeção** do arquivo `arquivo-final-1-
 - Aba `Satisfação`: as mesmas 15 colunas mais 4 perguntas da pesquisa. Só 883 linhas, todas `Finalizada`: amostra pequena e autosselecionada.
 - **Sem ID de protocolo.**
 - Formato interno: strings compartilhadas e datas como número serial. A aba `Solicitações` tem cerca de 518 MB de XML descompactado e 13 MB de strings compartilhadas.
+- Tipos de célula nas 10 colunas usadas, medidos em 2026-11-12 percorrendo as 742.904 linhas: `Data de Abertura` é numérica em todas; `Data de Finalização` é numérica em 718.596 e texto (`''`) em 24.308; `Meio de Comunicação` tem 1 célula ausente; `Prefeitura Operacional` e `Distrito` têm célula **ausente** (não `''`) em 367.648 e 374.346 linhas; os demais textos são sempre texto. **Não há célula de erro, booleana nem de data** nessas colunas.
 
 ## Colunas que o projeto usa (10)
 
@@ -38,9 +39,14 @@ Data de Abertura, Data de Finalização, Meio de Comunicação, Tema, Assunto, S
 
 A documentação (glossário e página do conjunto de dados) descreve colunas e valores que **não** coincidem com o arquivo: por exemplo, `Subprefeitura` (real: `Prefeitura Operacional`), status `Indeferido`/`Aberta` (inexistentes no arquivo) e ausência de latitude/longitude na aba `Solicitações` (existem). Regra do projeto: **validar pelo conteúdo do arquivo, não pela documentação.**
 
-## O que ainda não foi verificado
+## Verificado e ainda não verificado
 
-- Se os demais trimestres têm variação de acento, caixa ou espaços nos textos. Checar antes de qualquer normalização mais agressiva do dado guardado.
-- Os demais trimestres e anos (formato, tamanho, mudanças de colunas).
+**Verificado, só neste arquivo (1º trimestre de 2025):** a ingestão completa reproduz os totais acima (linhas, status, `Data de Finalização` nula, `Meio de Comunicação` nulo), e os tipos de célula das 10 colunas usadas são os descritos em "Estrutura do arquivo".
+
+**Ainda não verificado:**
+
+- Os demais trimestres e anos: formato, tamanho, mudanças de colunas e variação de acento, caixa ou espaços nos textos. Checar antes de qualquer normalização mais agressiva do dado guardado.
 - Se algum trimestre excede o limite de linhas do XLSX (hipótese não testada).
 - Comparabilidade entre o sistema de 2012–2014 e o de 2015 em diante.
+- O que a biblioteca de leitura decodifica em memória das colunas de endereço (a proteção vale para o que é mapeado e gravado; ver ADR 0002).
+- Cobertura da amostra de privacidade para `Número`: praticamente nula (1 valor com 7 ou mais caracteres). A proteção dessa coluna vem do esquema, que não a tem.
