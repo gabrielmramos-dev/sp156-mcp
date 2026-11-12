@@ -45,19 +45,6 @@ public class LinhasBrutasTests
         Assert.Equal(new object?[] { "primeira", "segunda" }, linhas.Select(l => l.Tema));
     }
 
-    [Fact]
-    public void Linha_sem_data_de_abertura_mas_com_outros_campos_e_mantida__decisao_pendente_da_tarefa_4()
-    {
-        // Registra o comportamento ATUAL (a linha não é "em branco"). O que fazer com ela
-        // (descartar, contar à parte ou falhar) é decisão da tarefa 4, não desta.
-        using var xlsx = Criar(Aba, CabecalhoDoArquivo, Linha(("Tema", "Rua e bairro"), ("Status", "Aberto")));
-
-        var linha = Assert.Single(LeitorSolicitacoes.LerLinhasBrutas(xlsx));
-
-        Assert.Null(linha.DataAbertura);
-        Assert.Equal("Rua e bairro", linha.Tema);
-    }
-
     // --- Linha curta ---------------------------------------------------------------------------
 
     [Fact]
@@ -135,7 +122,7 @@ public class LinhasBrutasTests
 
         Assert.Equal(new[]
         {
-            "DataAbertura", "DataFinalizacao", "MeioComunicacao", "Tema", "Assunto",
+            "Linha", "DataAbertura", "DataFinalizacao", "MeioComunicacao", "Tema", "Assunto",
             "Servico", "Status", "Orgao", "PrefeituraOperacional", "Distrito",
         }, nomes);
         Assert.DoesNotContain(nomes, n => n is "Logradouro" or "Numero" or "CEP" or "Latitude" or "Longitude");

@@ -40,4 +40,33 @@ internal static class PlanilhaDeTeste
         saida.Position = 0;
         return saida;
     }
+
+    // Planilha com as duas colunas de data numéricas (double = serial do Excel) e o resto texto.
+    // Cada linha vem alinhada a CabecalhoDoArquivo.
+    public static MemoryStream CriarComDatas(string aba, params object?[][] linhas)
+    {
+        var tabela = new DataTable();
+        foreach (var c in CabecalhoDoArquivo)
+            tabela.Columns.Add(c, c is "Data de Abertura" or "Data de Finalização" ? typeof(double) : typeof(string));
+        foreach (var l in linhas) tabela.Rows.Add(l.Select(v => v ?? DBNull.Value).ToArray());
+
+        var saida = new MemoryStream();
+        using (var escritor = ExcelDataWriter.Create(saida, ExcelWorkbookType.ExcelXml))
+            escritor.Write(tabela.CreateDataReader(), aba);
+        saida.Position = 0;
+        return saida;
+    }
+
+    // Linha completa e válida (datas como serial); os pares informados substituem as colunas.
+    public static object?[] LinhaValida(params (string Coluna, object? Valor)[] trocas)
+    {
+        var linha = new object?[]
+        {
+            45663d, 45694d, "PORTAL", "Rua e bairro", "Reparos em asfalto", "Tapa-buraco", "Finalizada",
+            "SMGI", "Rua Fictícia 1", "101", "05510001", "-23.580001", "-46.730001", "BUTANTA", "VILA SONIA",
+        };
+        foreach (var (coluna, valor) in trocas)
+            linha[Array.IndexOf(CabecalhoDoArquivo, coluna)] = valor;
+        return linha;
+    }
 }

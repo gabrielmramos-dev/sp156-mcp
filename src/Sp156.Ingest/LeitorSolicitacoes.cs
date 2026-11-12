@@ -8,14 +8,12 @@ public static class LeitorSolicitacoes
     private const string Aba = "Solicitações";
 
     /// <summary>
-    /// Valida a aba e o cabeçalho na chamada. Os pedidos são lidos ao enumerar, uma vez só:
-    /// o leitor é liberado ao fim da enumeração. Ainda não devolve pedidos: isso é a tarefa 4.
+    /// Aba e cabeçalho são validados na chamada. Os pedidos são lidos ao enumerar, uma vez só, e os
+    /// erros de linha (<see cref="LinhaInvalidaException"/>) saem na enumeração. O leitor é liberado
+    /// ao fim da enumeração. O <paramref name="xlsx"/> continua sendo do chamador.
     /// </summary>
-    public static IEnumerable<Pedido> Ler(Stream xlsx)
-    {
-        var (leitor, _) = Abrir(xlsx);
-        return Pedidos(leitor);
-    }
+    public static IEnumerable<Pedido> Ler(Stream xlsx) =>
+        LerLinhasBrutas(xlsx).Select(ConversorDePedido.Converter);
 
     /// <summary>
     /// Percorre a aba e devolve as linhas com dado, sem converter valores. Mesmas validações e
@@ -56,14 +54,6 @@ public static class LeitorSolicitacoes
             throw new InvalidDataException($"Aba '{Aba}' não encontrada.");
     }
 
-    private static IEnumerable<Pedido> Pedidos(ExcelDataReader leitor)
-    {
-        using (leitor)
-        {
-            yield break;
-        }
-    }
-
     private static IEnumerable<LinhaBruta> LinhasBrutas(ExcelDataReader leitor, MapaColunas mapa)
     {
         using (leitor)
@@ -75,7 +65,7 @@ public static class LeitorSolicitacoes
 
                 if (v.All(EmBranco)) continue;
 
-                yield return new LinhaBruta(v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9]);
+                yield return new LinhaBruta(leitor.RowNumber, v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9]);
             }
         }
     }

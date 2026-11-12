@@ -74,7 +74,8 @@ public class LeitorSolicitacoesTests
         Assert.NotEqual(Aba, nfd); // garante que o teste exercita NFD
         using var xlsx = Xlsx(nfd, CabecalhoCompleto);
 
-        var erro = Record.Exception(() => LeitorSolicitacoes.Ler(xlsx).ToList());
+        // Aba e cabeçalho são validados na chamada; as linhas de teste ("x") não são pedidos válidos.
+        var erro = Record.Exception(() => LeitorSolicitacoes.Ler(xlsx));
 
         Assert.Null(erro);
     }

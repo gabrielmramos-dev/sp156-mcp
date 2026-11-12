@@ -20,8 +20,12 @@ Servidor MCP, ferramentas, aba `Satisfação`, GeoSampa, Docker. Não tocar niss
 ## Contrato
 - Tipo `Pedido` em `src/Sp156.Ingest/Pedido.cs`, 10 campos. Não alterar sem avisar.
 - `LeitorSolicitacoes.Ler(Stream xlsx) : IEnumerable<Pedido>`: uma linha por vez, sem carregar tudo em memória.
-  - Até a tarefa 4, `Ler` valida aba e cabeçalho mas **não devolve `Pedido`** (conversão de datas, `''` → nulo e normalização ainda não existem). A camada interna `LerLinhasBrutas` já percorre a aba e devolve `LinhaBruta` (só as 10 colunas mapeadas, valores sem converter), ignorando linhas em branco.
+  - `Ler` valida aba e cabeçalho **na chamada** e devolve os pedidos **na enumeração**, uma vez só. Os erros de linha (`LinhaInvalidaException`, com `Linha` e `Coluna`) saem na enumeração, quando a linha ruim é lida, e a linha é o número que o Excel mostra.
+  - A camada interna `LerLinhasBrutas` percorre a aba e devolve `LinhaBruta` (número da linha e só as 10 colunas mapeadas, valores sem converter), ignorando linhas em branco. `Ler` converte cada `LinhaBruta` em `Pedido`.
   - Linha em branco = as 10 colunas obrigatórias nulas, vazias ou só com espaços. Linha curta (menos células que o cabeçalho) completa as ausentes com nulo.
+  - Conversão: `Data de Abertura` e `Data de Finalização` numéricas são o serial do Excel e viram `DateOnly` sem hora (`DateTime.FromOADate`). `Data de Finalização` nula ou `''` vira `null`; `Meio de Comunicação`, `Prefeitura Operacional` e `Distrito` nulos ou `''` viram `null`.
+  - Linha inválida (exceção com linha e coluna, **sem** conteúdo de célula): `Data de Abertura`, `Tema`, `Assunto`, `Serviço`, `Status` ou `Órgão` nulos ou `''`; texto não vazio (inclusive só espaços) ou serial fora do intervalo numa coluna de data.
+  - Os textos passam como vieram: a normalização (espaços, acentos) é a tarefa 5.
 
 ## Cabeçalhos
 As colunas são mapeadas pelo **nome do cabeçalho**, não pela posição. A comparação é exata (diferencia maiúsculas de minúsculas e acentos), mas ambos os lados são normalizados para Unicode NFC antes, então um cabeçalho decomposto (NFD) equivale ao composto. O nome da aba (`Solicitações`) segue a mesma regra. Colunas extras são ignoradas. As 5 colunas de endereço nunca entram no mapa.
