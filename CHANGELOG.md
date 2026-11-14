@@ -10,6 +10,13 @@ A versão 0.1.0 existe como tag local; nada foi publicado.
 - Documentação: o status do arquivo medido passa a ser descrito como um retrato de data desconhecida, não anterior a 2026-08-05 (data da última finalização no arquivo), e não mais como um retrato de agosto/2026. A data de extração não foi medida. A frase sobre censura continua: pedidos ainda abertos não têm data de finalização, então qualquer média de tempo até finalizar é viesada.
 - Projeto `src/Sp156.Mcp` (servidor MCP, Marco 2) criado com os pacotes `ModelContextProtocol` 2.4.0 (Apache-2.0) e `Microsoft.Extensions.Hosting` 10.0.15 (MIT). Sem componente nativo novo e sem vulnerabilidade no NuGet audit. Decisão no ADR 0008.
 - `Sp156.Mcp` (M2-1, esqueleto do servidor): configuração do banco por `--db` ou `SP156_DB` (o argumento vence), banco aberto só para leitura, logs no stderr (o stdout fica para o protocolo) e código de saída `1` para configuração inválida. Ainda sem ferramentas.
+- `Sp156.Mcp` (M2-2, camada de entrada, ainda sem ferramentas):
+  - `Catalogo`: mapa da Chave para os valores originais das 8 colunas categóricas, só com valores de 5 ou mais linhas. `Resolver` recusa filtro vazio e valor desconhecido com `McpException`, sugerindo até 5 valores do catálogo pela distância de edição (um valor raro dá o mesmo erro de um inexistente).
+  - `Validacao`: datas `yyyy-MM-dd` estritas, intervalo fechado, `limite` de 1 a 100 e `agrupar_por` (as 8 colunas e `mes`, aceitando a Chave do nome).
+  - `Filtros`: cláusula `WHERE` só com parâmetros, filtros combinados com E.
+  - `Supressao`: grupos com menos de 5 pedidos somados em uma linha `outros (agrupados)`, preservando o total.
+  - Testes do SDK 2.4.0: `McpException` vira `IsError` com a mensagem; exceção inesperada, parâmetro obrigatório ausente e tipo errado viram `IsError` com mensagem genérica; parâmetro desconhecido é ignorado em silêncio.
+  - Opt-in no arquivo real: 1.344 valores no catálogo, 256 de fora e 0 colisões.
 
 ## [0.1.0] - 2026-11-12
 

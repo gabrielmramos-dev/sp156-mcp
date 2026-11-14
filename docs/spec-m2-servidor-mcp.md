@@ -1,6 +1,6 @@
 # Spec M2: Servidor MCP do SP156
 
-> **Status: rascunho de especificação (tarefa M2-0), escrito em 2026-11-12 e ajustado no mesmo dia com as decisões do autor (seção 3, decisões 10 a 14). Nenhum código do Marco 2 existe.**
+> **Status: rascunho de especificação (tarefa M2-0), escrito em 2026-11-12 e ajustado no mesmo dia com as decisões do autor (seção 3, decisões 10 a 14). M2-1 (esqueleto do servidor) e M2-2 (catálogo e validação de entrada) implementadas; ainda nenhuma ferramenta. O que a implementação confirmou está na §4 e na §15.**
 
 Convenções deste documento:
 
@@ -375,11 +375,20 @@ Mutações previstas por tarefa (exemplos): tirar o `limitacoes` de uma ferramen
 
 **Confirmado na M2-1** (detalhes na §4): construtores de `McpException`; nome publicado das ferramentas (`snake_case` do método) e `Name` no atributo; nomes JSON na saída (`[JsonPropertyName]` respeitado; sem ele, `camelCase`) e o bloco de texto que acompanha a saída estruturada; parâmetros opcionais e tipo errado; registro das nossas classes no transporte em memória; comportamento ao fechar o stdin; versões e dependências (ADR 0008).
 
+**Confirmado na M2-2** (testes em `ErrosDoSdkTests`, transporte em memória, SDK 2.4.0):
+
+- `new McpException("mensagem clara")` dá `IsError = true` e o texto `An error occurred invoking 'falha_clara': mensagem clara`.
+- Exceção inesperada (`ArgumentException("segredo-123")`) dá `IsError = true` e só `An error occurred invoking 'falha_inesperada'.`, sem o texto da exceção.
+- Parâmetro **obrigatório ausente**, **texto no lugar de inteiro** e **número no lugar de texto** dão `IsError = true` com a mesma mensagem genérica (`An error occurred invoking 'eco'.`). A mensagem não diz qual parâmetro está errado, então o modelo não tem como se corrigir sozinho. Consequência proposta para as M2-3 a M2-5: declarar todos os parâmetros das ferramentas como opcionais e anuláveis e validar no nosso código, para que o erro venha como `McpException` com mensagem clara.
+- Parâmetro **desconhecido** continua ignorado em silêncio (a chamada com `orgão` roda como se o filtro não existisse). Não investiguei se dá para rejeitá-lo (item 2 abaixo).
+
+Aplicado na M2-2 como proposta, sem decisão do autor: valores mais próximos pela distância de edição sobre a Chave, até 5, desempate em ordem ordinal (decisão em aberto 5); quando a coluna não tem nenhum valor no catálogo, a lista diz `nenhum`; `agrupar_por` aceita a Chave do nome (`"Mes"`, `"mês"`), como proposto na §8.
+
 **Ainda a verificar no código (SDK 2.4.0)**
 
 1. Pureza do stdout numa conversa de protocolo completa, inclusive quando o SQLite nativo ou uma exceção não tratada escrevem algo (M2-6).
-2. Se é possível rejeitar parâmetros desconhecidos (o SDK os ignora; ver a primeira decisão em aberto abaixo): filtro de requisição, validação do `JsonElement` ou outra forma (M2-2).
-3. O texto exato de erro para parâmetros obrigatórios ausentes e para tipos errados em casos além do `limite` (M2-2).
+2. Se é possível rejeitar parâmetros desconhecidos (o SDK os ignora; ver a primeira decisão em aberto abaixo): filtro de requisição, validação do `JsonElement` ou outra forma. Não investigado na M2-2; fica para a M2-4, a primeira ferramenta com filtros.
+3. ~~O texto exato de erro para parâmetros obrigatórios ausentes e para tipos errados~~: medido na M2-2 (acima).
 
 **Decisões em aberto (para o autor)**
 

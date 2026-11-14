@@ -4,9 +4,9 @@ Instruções para agentes de código (Claude Code, Codex, Cursor etc.). Fonte ú
 
 ## Projeto
 
-Servidor MCP não oficial, em C#/.NET, sobre os dados abertos do SP156 (Prefeitura de São Paulo). **Estado atual: Marco 1 (ingestão XLSX → SQLite). Não existe servidor MCP ainda.**
+Servidor MCP não oficial, em C#/.NET, sobre os dados abertos do SP156 (Prefeitura de São Paulo). **Estado atual: Marco 1 concluído (ingestão XLSX → SQLite). Marco 2 (servidor MCP) em andamento: M2-1 e M2-2 prontas, servidor ainda sem ferramentas.**
 
-Leia antes de agir: `docs/spec-m1-ingestao.md`, `docs/DATA.md`, `docs/decisions/`.
+Leia antes de agir: `docs/spec-m1-ingestao.md`, `docs/spec-m2-servidor-mcp.md`, `docs/DATA.md`, `docs/decisions/`.
 
 ## Comandos
 

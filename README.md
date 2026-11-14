@@ -7,7 +7,7 @@ Servidor [MCP](https://modelcontextprotocol.io) **não oficial**, em C#, sobre o
 ## Estado
 
 - **Marco 1: ingestão concluída.** Lê o XLSX do SP156 e grava os pedidos em um banco SQLite, sem nenhuma coluna de endereço ou coordenada. Há um comando de linha de comando (`ingerir`) para isso.
-- **Marco 2: servidor MCP, ainda não iniciado.** Não existe servidor MCP nem ferramentas.
+- **Marco 2: servidor MCP, em andamento.** O servidor sobe por stdio e abre o banco só para leitura, mas ainda não tem ferramentas: um cliente MCP não consegue consultar nada por enquanto.
 
 ## O que pretende ser
 
