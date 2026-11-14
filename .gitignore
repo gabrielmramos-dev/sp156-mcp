@@ -499,3 +499,6 @@ data/
 !tests/Sp156.Ingest.Tests/Fixtures/
 !tests/Sp156.Ingest.Tests/Fixtures/*.xlsx
 docs/LEARNING-LOG.md
+
+# grafo do Graphify (gerado localmente; pode citar trechos do código e da documentação)
+graphify-out/
