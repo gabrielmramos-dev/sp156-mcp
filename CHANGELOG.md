@@ -17,6 +17,12 @@ A versão 0.1.0 existe como tag local; nada foi publicado.
   - `Supressao`: grupos com menos de 5 pedidos somados em uma linha `outros (agrupados)`, preservando o total.
   - Testes do SDK 2.4.0: `McpException` vira `IsError` com a mensagem; exceção inesperada, parâmetro obrigatório ausente e tipo errado viram `IsError` com mensagem genérica; parâmetro desconhecido é ignorado em silêncio.
   - Opt-in no arquivo real: 1.344 valores no catálogo, 256 de fora e 0 colisões.
+- `Sp156.Mcp` (M2-3, primeira ferramenta: `descrever_dataset`):
+  - `Limitacoes`: os 4 textos comuns da spec como constantes; período, última finalização, total e duplicatas (total menos as combinações distintas das 10 colunas) calculados do banco. Percentual com 2 casas, vírgula decimal e arredondamento para longe de zero; números sem separador de milhar.
+  - `DescricaoDoDataset`: total, período, `por_status` (pedidos decrescente, empate pela ordem ordinal do .NET) e `por_mes` (cronológico), ambos com supressão; `valores_distintos` (todos os não nulos), `valores_no_catalogo` (só os de 5 ou mais linhas) e `linhas_sem_valor`. Uma varredura para distintos e nulos.
+  - `DadosDoBanco`: catálogo e medidas lidos uma vez por processo, na primeira chamada que precisar deles (não na partida). O servidor sobe e lista as ferramentas sem abrir o banco.
+  - `FerramentasDoDataset`: `descrever_dataset` com saída estruturada (`snake_case`), uma conexão somente leitura por chamada, registrada em `ServidorMcp.Registrar`. O teste "sem ferramentas" da M2-1 deu lugar a "anuncia `tools` e lista `descrever_dataset`".
+  - Opt-in no arquivo real: todos os valores da §13 da spec M2 para `descrever_dataset` (742904 linhas, 56,47% de duplicatas, última finalização 2026-08-05).
 
 ## [0.1.0] - 2026-11-12
 

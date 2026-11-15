@@ -17,10 +17,11 @@ public static class ServidorMcp
     public static IMcpServerBuilder Registrar(IServiceCollection servicos, ConfiguracaoDoServidor configuracao)
     {
         servicos.AddSingleton(configuracao);
+        servicos.AddSingleton<DadosDoBanco>();
         return servicos.AddMcpServer(opcoes => opcoes.ServerInfo = new Implementation
         {
             Name = Nome,
             Version = typeof(ServidorMcp).Assembly.GetName().Version?.ToString() ?? "0.0.0",
-        });
+        }).WithTools<FerramentasDoDataset>();
     }
 }

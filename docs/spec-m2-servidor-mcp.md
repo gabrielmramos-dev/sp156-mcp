@@ -1,6 +1,6 @@
 # Spec M2: Servidor MCP do SP156
 
-> **Status: rascunho de especificação (tarefa M2-0), escrito em 2026-11-12 e ajustado no mesmo dia com as decisões do autor (seção 3, decisões 10 a 14). M2-1 (esqueleto do servidor) e M2-2 (catálogo e validação de entrada) implementadas; ainda nenhuma ferramenta. O que a implementação confirmou está na §4 e na §15.**
+> **Status: rascunho de especificação (tarefa M2-0), escrito em 2026-11-12 e ajustado no mesmo dia com as decisões do autor (seção 3, decisões 10 a 14). M2-1 (esqueleto do servidor), M2-2 (catálogo e validação de entrada) e M2-3 (`descrever_dataset`) implementadas; decisões 15 a 18 tomadas na M2-3. O que a implementação confirmou está na §4 e na §15.**
 
 Convenções deste documento:
 
@@ -48,6 +48,10 @@ Expor, por MCP sobre stdio, consultas **agregadas** (contagens e estatísticas) 
 | 12 | Duração negativa: campo separado, fora das estatísticas. Média com 1 casa, arredondada para longe de zero. Filtro com string vazia ou só espaços: `McpException` clara (não ignorar) | §9, §10 |
 | 13 | Supressão: em saídas **agrupadas**, grupos com menos de 5 pedidos viram uma linha "outros (agrupados)", preservando os totais. Valores com menos de 5 linhas ficam fora do mapa de Chave e das listas de categorias mais próximas nos erros. Totais exatos. **Não é garantia formal de anonimato** | §6.3, §8, §11 |
 | 14 | `limitacoes`: textos fixos como constantes no código, com teste; números e datas calculados do banco na consulta. Sem tabela de metadados e sem mudança de esquema | §6.4 |
+| 15 | `descrever_dataset` devolve `valores_no_catalogo` (decisão em aberto 3) | §7 |
+| 16 | O catálogo e as medidas de `limitacoes` (inclusive as duplicatas) são calculados uma vez por processo e guardados em memória (decisão em aberto 4) | §5, §6.4 |
+| 17 | Ordenação de `por_status` (pedidos decrescente, empate por `valor` crescente) e de `por_mes` (cronológica), como proposto na §7 | §7 |
+| 18 | Percentual de duplicatas com 2 casas, arredondado para longe de zero, como a média (decisão 12) | §6.4 |
 
 ## 4. O que a documentação do SDK confirma
 
@@ -81,7 +85,7 @@ SP156_DB=<caminho.db> dotnet run --project src/Sp156.Mcp
 - **Proposta (a confirmar):** `--db` tem precedência sobre `SP156_DB`. Sem nenhum dos dois, ou com um caminho que não existe, o servidor escreve uma mensagem no stderr e termina com código `1`, sem iniciar o protocolo.
 - **Proposta (a confirmar):** na partida, o servidor confere que a tabela `pedidos` existe com as 10 colunas do esquema do Marco 1 ([spec M1](spec-m1-ingestao.md)) e, se não, termina com código `1` e uma mensagem clara.
 - **Proposta (a confirmar):** uma conexão `Mode=ReadOnly;Pooling=False` por chamada de ferramenta, como no ADR 0007, sem estado compartilhado além do catálogo da §6.3, que é imutável.
-- **Partida:** o servidor carrega o catálogo da §6.3 antes de aceitar chamadas, com um `GROUP BY ... HAVING count(*) >= 5` por coluna. Medida de ordem de grandeza (Python com SQLite 3.45.1, não o C#): 8 consultas `GROUP BY` levaram 2,5 s no `.db` do arquivo real. O `.db` não tem índices, e o servidor não pode criá-los (somente leitura).
+- **Carga do catálogo (corrigido na M2-3):** o catálogo da §6.3 e as medidas da §6.4 são carregados na **primeira chamada** que precisar deles, não na partida (`DadosDoBanco`, com `Lazy<T>` thread-safe), e guardados até o fim do processo (decisão 16). Motivo: o servidor sobe e lista as ferramentas sem abrir o banco, e os testes que registram o servidor com um caminho fictício continuam válidos; falhar na partida com banco inválido é a decisão em aberto 6. Consequência: a primeira chamada paga a carga, e uma falha nela fica guardada pelo `Lazy` até reiniciar o processo. O catálogo usa um `GROUP BY ... HAVING count(*) >= 5` por coluna. Medida de ordem de grandeza (Python com SQLite 3.45.1, não o C#): 8 consultas `GROUP BY` levaram 2,5 s no `.db` do arquivo real. O `.db` não tem índices, e o servidor não pode criá-los (somente leitura).
 
 ## 6. Vocabulário comum das ferramentas
 
@@ -131,7 +135,9 @@ Lista de textos devolvida por **todas** as ferramentas. Decisão 14: os **textos
 
 **Medido no `.db` do arquivo real (2026-11-12):** período `2025-01-01` a `2025-03-31`; maior finalização `2026-08-05`; **419.529 linhas duplicadas de 742.904 (56,47%)**, com 323.375 combinações distintas das 10 colunas. Esse percentual **não é o 47,65%** que o README, o `DATA.md` e o ADR 0003 citam. A diferença provável é o conjunto de colunas (o `.db` não tem as 5 colunas de endereço, e linhas que só diferiam por elas viram duplicatas), mas **não verifiquei como o 47,65% foi calculado**; a spec usa o valor calculado do banco, e os documentos citados ficam para o autor revisar (§15).
 
-**Custo e cache (proposta, a confirmar):** o cálculo das duplicatas levou 2,2 s no Python. Como o `.db` é somente leitura e não muda durante a vida do processo, o resultado pode ser calculado na primeira vez que for preciso e guardado em memória; o período e as datas custam pouco (0,08 s).
+**Custo e cache (decisão 16):** o cálculo das duplicatas levou 2,2 s no Python. Como o `.db` é somente leitura e não muda durante a vida do processo, o resultado é calculado na primeira vez que for preciso e guardado em memória; o período e as datas custam pouco (0,08 s).
+
+**Formatação (M2-3):** percentual com 2 casas, vírgula decimal e arredondamento para longe de zero (decisão 18: 3,125% vira `3,13`); contagens sem separador de milhar (`419529 de 742904`); datas `yyyy-MM-dd`. Na fixture v2: período `2025-01-06` a `2025-03-18`, última finalização `2025-03-28`, 3 duplicatas de 30 (`10,00%`).
 
 Textos específicos de cada ferramenta estão em §8 e §9.
 
@@ -176,8 +182,8 @@ Textos específicos de cada ferramenta estão em §8 e §9.
 ```
 
 - `por_status` e `por_mes` são saídas **agrupadas**: a supressão da decisão 13 se aplica (grupos com menos de 5 pedidos viram uma linha "outros (agrupados)"). No arquivo real nenhum grupo é pequeno. Na fixture de 30 linhas, só `Finalizada` (27) passa de 5; os outros três status (1 pedido cada) viram `outros (agrupados)` com 3.
-- `por_status` em ordem decrescente de `pedidos` (empate: `valor` crescente); `por_mes` em ordem cronológica. **Proposta (a confirmar):** a ordenação é essa, para o resultado ser determinístico.
-- `valores_distintos` conta **todos** os valores distintos não nulos (um agregado, que não revela valor nenhum): 517, 707, 204, 96, 38, 28, 4 e 6. **Proposta (a confirmar):** acrescentar `valores_no_catalogo` (os com 5 ou mais linhas: 430, 563, 182, 96, 36, 27, 4 e 6 no arquivo real) para o cliente saber quantos podem ser usados como filtro.
+- `por_status` em ordem decrescente de `pedidos` (empate: `valor` crescente); `por_mes` em ordem cronológica (decisão 17). O desempate usa a ordem ordinal do .NET (UTF-16), não a do SQLite (bytes UTF-8); as duas só diferem com caracteres fora do BMP, e há teste para isso.
+- `valores_distintos` conta **todos** os valores distintos não nulos (um agregado, que não revela valor nenhum): 517, 707, 204, 96, 38, 28, 4 e 6. `valores_no_catalogo` (decisão 15) conta os com 5 ou mais linhas: 430, 563, 182, 96, 36, 27, 4 e 6 no arquivo real (confirmado no opt-in da M2-3), para o cliente saber quantos podem ser usados como filtro. Na fixture v2: distintos 7/8/8/4/7/5/5/6 e no catálogo 2/1/1/1/2/1/1/1 (na ordem tema, assunto, servico, status, orgao, prefeitura_operacional, distrito, meio_comunicacao).
 - `linhas_sem_valor` (decisão 11) traz as contagens de nulos das colunas que admitem nulo: `prefeitura_operacional`, `distrito` e `meio_comunicacao`. O `DATA.md` exige informar quantas linhas ficaram sem distrito em qualquer resposta por distrito.
 
 **Erros:** nenhum de entrada (não há parâmetros). Falha de leitura do banco é exceção inesperada (§10).
@@ -384,6 +390,15 @@ Mutações previstas por tarefa (exemplos): tirar o `limitacoes` de uma ferramen
 
 Aplicado na M2-2 como proposta, sem decisão do autor: valores mais próximos pela distância de edição sobre a Chave, até 5, desempate em ordem ordinal (decisão em aberto 5); quando a coluna não tem nenhum valor no catálogo, a lista diz `nenhum`; `agrupar_por` aceita a Chave do nome (`"Mes"`, `"mês"`), como proposto na §8.
 
+**Confirmado na M2-3** (`descrever_dataset`):
+
+- Com uma ferramenta registrada, o servidor anuncia `tools` e lista `descrever_dataset` sem abrir o banco. O teste "sem ferramentas" da M2-1 foi substituído por esse, com aprovação do autor.
+- Um método sem parâmetros publica um esquema de entrada sem propriedades, e `UseStructuredContent = true` publica `OutputSchema`.
+- A resposta tem exatamente as 8 propriedades da §7 (com `valores_no_catalogo`), todas em `snake_case`.
+- Opt-in no arquivo real: todos os valores da §13 para `descrever_dataset` bateram.
+
+Aplicado na M2-3 sem decisão explícita do autor: carga do catálogo na primeira chamada, não na partida (§5).
+
 **Ainda a verificar no código (SDK 2.4.0)**
 
 1. Pureza do stdout numa conversa de protocolo completa, inclusive quando o SQLite nativo ou uma exceção não tratada escrevem algo (M2-6).
@@ -395,8 +410,8 @@ Aplicado na M2-2 como proposta, sem decisão do autor: valores mais próximos pe
 0. **Parâmetro desconhecido é ignorado em silêncio** (medido na sonda). Se o modelo escrever o nome de um filtro errado (por exemplo `orgão` em vez de `orgao`), a chamada roda **sem o filtro** e devolve a contagem do conjunto inteiro, o que parece uma resposta correta. Como mitigar: rejeitar parâmetros desconhecidos com `McpException` (se o SDK permitir, ver a verificação 2) e/ou devolver `filtros_aplicados` em toda resposta para o modelo conferir o que valeu.
 1. **47,65% contra 56,47%.** O `.db` tem 56,47% de linhas duplicadas nas 10 colunas guardadas, e o README, o `DATA.md` e o ADR 0003 dizem 47,65%. Como o 47,65% foi calculado (quais colunas)? Esses três documentos precisam de revisão; esta spec usa o valor calculado do banco.
 2. `total_de_grupos`: confirmar a definição (grupos com 5 ou mais pedidos, antes do `limite`) e que a linha "outros (agrupados)" não conta para o `limite`.
-3. `valores_no_catalogo` em `descrever_dataset`: entra?
-4. Guardar em memória o cálculo das duplicatas (2,2 s) na primeira vez em que for preciso?
+3. ~~`valores_no_catalogo` em `descrever_dataset`: entra?~~ Sim (decisão 15).
+4. ~~Guardar em memória o cálculo das duplicatas (2,2 s) na primeira vez em que for preciso?~~ Sim (decisão 16).
 5. Valores mais próximos: métrica (distância de edição sobre a Chave) e limite de 5.
 6. Validar o esquema do `.db` na partida e falhar com código `1`?
 7. `tempo_ate_finalizar` sem supressão (§9, §11): aceitar o limite conhecido ou suprimir quando `n` for pequeno?

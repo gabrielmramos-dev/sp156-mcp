@@ -61,15 +61,16 @@ public class ServidorMcpTests
     }
 
     [Fact]
-    public async Task Sem_ferramentas_o_servidor_nao_anuncia_a_capacidade_e_tools_list_nao_esta_disponivel()
+    public async Task Anuncia_a_capacidade_tools_e_lista_descrever_dataset_sem_abrir_o_banco()
     {
-        // Comportamento medido no SDK 2.4.0: sem nenhuma ferramenta registrada, a capacidade "tools" não existe.
+        // Substitui o teste "sem ferramentas" da M2-1 (no SDK 2.4.0, sem ferramenta a capacidade "tools" não existe).
+        // O caminho do banco é fictício: listar as ferramentas não pode depender de abrir o banco.
         var (cliente, host) = await Subir();
         try
         {
-            Assert.Null(cliente.ServerCapabilities.Tools);
-            var ex = await Assert.ThrowsAsync<McpProtocolException>(() => cliente.ListToolsAsync().AsTask());
-            Assert.Contains("tools/list", ex.Message);
+            Assert.NotNull(cliente.ServerCapabilities.Tools);
+            var nomes = (await cliente.ListToolsAsync()).Select(f => f.Name);
+            Assert.Contains("descrever_dataset", nomes);
         }
         finally
         {
